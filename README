@@ -1,0 +1,24 @@
+A Database Backend For Rails I18N
+=======================================================================
+
+TODO
+-------
+create view translation cache
+create view translation cache loader for production
+
+
+INSTALL
+-------
+> script/generate i18n_database_backend
+> rake db:migrate
+> rake i18n:populate:all
+
+> I18n.backend = I18n::Backend::Database.new
+> I18n.backend.cache_store = :memory_store
+
+> I18n::Backend::Database.cache_store = :memory_store
+
+
+USAGE
+-------
+
