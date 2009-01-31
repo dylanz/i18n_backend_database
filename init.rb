@@ -1,2 +1,3 @@
 require 'i18n_backend_database'
-#I18n::Backend::Database::Cache.instance
+require File.dirname(__FILE__) + '/lib/i18n_backend_database/locale'
+require File.dirname(__FILE__) + '/lib/i18n_backend_database/translation'
