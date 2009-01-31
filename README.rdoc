@@ -1,20 +1,31 @@
 = A Database Backend For Rails I18N
 
-Store your translations in the database, rather than a yaml files.  As you tag items with i18n.t() throughout your interface, all untranslated items are added to the database, and an admin panel is available for use as well.  All keys are cached, and an alternate cache store can be provided.
+Store your translations in the database, rather than yaml files.  As you tag items with i18n.t() throughout your code base, all untranslated items are marked and added to the database.  An admin anel is provided so translators can quickly translate untranslated text.  All keys are cached, and an alternate cache store can be provided.
 
 
 == Installation
 
-1.  script/generate i18n_database_backend  # add migration
-2.  rake db:migrate                        # migrate
-3.  rake i18n:populate:all                 # populate locales
+# add migration
+script/generate i18n_database_backend
+
+# migrate
+rake db:migrate
+
+# populate locales
+rake i18n:populate:all
+
 
 In config/initialisers/i18n.rb
-- I18n.backend = I18n::Backend::Database.new  # registers the backend
-- I18n.backend.cache_store = :memory_store    # optional:  specify an alternate cache store
+
+# registers the backend
+I18n.backend = I18n::Backend::Database.new
+
+# optional: specify an alternate cache store
+I18n.backend.cache_store = :memory_store
 
 
 == TODO
+I18n.ta ?
 pluralization to be added/rules imported
 interpolation
 namespacing
