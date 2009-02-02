@@ -30,6 +30,35 @@ def load_from_csv(file_name)
   end
 end
 
+def load_from_yml(file_name)
+  data = YAML::load(IO.read(file_name))
+  data.each do |code, translations| 
+    locale = I18n::Locale.find_or_create_by_code(code)
+    backend = I18n::Backend::Simple.new
+    keys = extract_i18n_keys(translations)
+    keys.each do |key|
+      value = backend.send(:lookup, code, key)
+      translation = locale.translations.find_or_initialize_by_key(key)
+      translation.value = value
+      translation.save!
+    end
+
+  end
+end
+
+def extract_i18n_keys(hash, parent_keys = [])
+  hash.inject([]) do |keys, (key, value)|
+    full_key = parent_keys + [key]
+    if value.is_a?(Hash)
+      # Nested hash
+      keys += extract_i18n_keys(value, full_key)
+    elsif value.present?
+      # String leaf node
+      keys << full_key.join(".")
+    end
+    keys
+  end
+end
 
 namespace :i18n do
   namespace :populate do
@@ -41,6 +70,11 @@ namespace :i18n do
     desc 'Populate the locales table'
     task :locales => :environment do
       load_from_csv("locales")
+    end
+    
+    desc 'Populate the locales and translations tables from a Locale YAML file.  Specify file using LOCALE_FILE=path_to_file'
+    task :from_yaml => :environment do
+      load_from_yml(ENV['LOCALE_FILE'])
     end
   end
 end
