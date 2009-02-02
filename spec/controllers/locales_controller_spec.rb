@@ -31,8 +31,8 @@ describe LocalesController do
   describe "responding to GET show" do
 
     it "should expose the requested locale as @locale" do
-      I18n::Locale.should_receive(:find).with("37").and_return(mock_locale)
-      get :show, :id => "37"
+      I18n::Locale.should_receive(:find_by_code).with("en").and_return(mock_locale)
+      get :show, :id => "en"
       assigns[:locale].should equal(mock_locale)
     end
     
@@ -40,9 +40,9 @@ describe LocalesController do
 
       it "should render the requested locale as xml" do
         request.env["HTTP_ACCEPT"] = "application/xml"
-        I18n::Locale.should_receive(:find).with("37").and_return(mock_locale)
+        I18n::Locale.should_receive(:find_by_code).with("en").and_return(mock_locale)
         mock_locale.should_receive(:to_xml).and_return("generated XML")
-        get :show, :id => "37"
+        get :show, :id => "en"
         response.body.should == "generated XML"
       end
 
@@ -63,8 +63,8 @@ describe LocalesController do
   describe "responding to GET edit" do
   
     it "should expose the requested locale as @locale" do
-      I18n::Locale.should_receive(:find).with("37").and_return(mock_locale)
-      get :edit, :id => "37"
+      I18n::Locale.should_receive(:find_by_code).with("en").and_return(mock_locale)
+      get :edit, :id => "en"
       assigns[:locale].should equal(mock_locale)
     end
 
@@ -111,14 +111,14 @@ describe LocalesController do
     describe "with valid params" do
 
       it "should update the requested locale" do
-        I18n::Locale.should_receive(:find).with("37").and_return(mock_locale)
+        I18n::Locale.should_receive(:find_by_code).with("en").and_return(mock_locale)
         mock_locale.should_receive(:update_attributes).with({'these' => 'params'})
-        put :update, :id => "37", :i18n_locale => {:these => 'params'}
+        put :update, :id => "en", :i18n_locale => {:these => 'params'}
       end
 
       it "should expose the requested locale as @locale" do
-        I18n::Locale.stub!(:find).and_return(mock_locale(:update_attributes => true))
-        put :update, :id => "1"
+        I18n::Locale.stub!(:find_by_code).and_return(mock_locale(:update_attributes => true))
+        put :update, :id => "en"
         assigns(:locale).should equal(mock_locale)
       end
 
@@ -133,20 +133,20 @@ describe LocalesController do
     describe "with invalid params" do
 
       it "should update the requested locale" do
-        I18n::Locale.should_receive(:find).with("37").and_return(mock_locale)
+        I18n::Locale.should_receive(:find_by_code).with("en").and_return(mock_locale)
         mock_locale.should_receive(:update_attributes).with({'these' => 'params'})
-        put :update, :id => "37", :i18n_locale => {:these => 'params'}
+        put :update, :id => "en", :i18n_locale => {:these => 'params'}
       end
 
       it "should expose the locale as @locale" do
-        I18n::Locale.stub!(:find).and_return(mock_locale(:update_attributes => false))
-        put :update, :id => "1"
+        I18n::Locale.stub!(:find_by_code).and_return(mock_locale(:update_attributes => false))
+        put :update, :id => "en"
         assigns(:locale).should equal(mock_locale)
       end
 
       it "should re-render the 'edit' template" do
-        I18n::Locale.stub!(:find).and_return(mock_locale(:update_attributes => false))
-        put :update, :id => "1"
+        I18n::Locale.stub!(:find_by_code).and_return(mock_locale(:update_attributes => false))
+        put :update, :id => "en"
         response.should render_template('edit')
       end
 
@@ -157,14 +157,14 @@ describe LocalesController do
   describe "responding to DELETE destroy" do
 
     it "should destroy the requested locale" do
-      I18n::Locale.should_receive(:find).with("37").and_return(mock_locale)
+      I18n::Locale.should_receive(:find_by_code).with("en").and_return(mock_locale)
       mock_locale.should_receive(:destroy)
-      delete :destroy, :id => "37"
+      delete :destroy, :id => "en"
     end
   
     it "should redirect to the locales list" do
-      I18n::Locale.stub!(:find).and_return(mock_locale(:destroy => true))
-      delete :destroy, :id => "1"
+      I18n::Locale.stub!(:find_by_code).and_return(mock_locale(:destroy => true))
+      delete :destroy, :id => "en"
       response.should redirect_to(i18n_locales_url)
     end
 

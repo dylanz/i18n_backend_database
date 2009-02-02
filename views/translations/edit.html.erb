@@ -1,0 +1,24 @@
+<h1>Editing translation for <%= @locale.code %></h1>
+
+<% form_for(@translation, :url => i18n_locale_translation_path(@locale, @translation)) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.label :key %><br />
+    <%= f.text_field :key %>
+  </p>
+  <p>
+    <%= f.label :value %><br />
+    <%= f.text_field :value %>
+  </p>
+  <p>
+    <%= f.label :pluralization_index %><br />
+    <%= f.text_field :pluralization_index %>
+  </p>
+  <p>
+    <%= f.submit "Update" %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', i18n_locale_translation_path(@locale, @translation) %> |
+<%= link_to 'Back', i18n_locale_translations_path %>

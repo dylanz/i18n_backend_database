@@ -1,6 +1,9 @@
 module I18n
   class Locale < ActiveRecord::Base
-    has_many :translations
+    validates_presence_of :code
+    validates_uniqueness_of :code
+
+    has_many :translations, :class_name => "I18n::Translation"
 
     # find the translation, or create one if it doesn't exist
     def find_or_create_translation(key, options)
@@ -14,5 +17,10 @@ module I18n
     def self.available_locales
       all.map(&:code).map(&:to_sym)
     end
+    
+    def to_param
+      self.code
+    end
+    
   end
 end

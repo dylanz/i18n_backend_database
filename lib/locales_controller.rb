@@ -15,7 +15,7 @@ class LocalesController < ActionController::Base
   # GET /locales/1
   # GET /locales/1.xml
   def show
-    @locale = I18n::Locale.find(params[:id])
+    @locale = I18n::Locale.find_by_code(params[:id])
 
     respond_to do |format|
       format.html # show.html.erb
@@ -36,7 +36,7 @@ class LocalesController < ActionController::Base
 
   # GET /locales/1/edit
   def edit
-    @locale = I18n::Locale.find(params[:id])
+    @locale = I18n::Locale.find_by_code(params[:id])
   end
 
   # POST /locales
@@ -59,7 +59,7 @@ class LocalesController < ActionController::Base
   # PUT /locales/1
   # PUT /locales/1.xml
   def update
-    @locale = I18n::Locale.find(params[:id])
+    @locale = I18n::Locale.find_by_code(params[:id])
 
     respond_to do |format|
       if @locale.update_attributes(params[:i18n_locale])
@@ -76,7 +76,7 @@ class LocalesController < ActionController::Base
   # DELETE /locales/1
   # DELETE /locales/1.xml
   def destroy
-    @locale = I18n::Locale.find(params[:id])
+    @locale = I18n::Locale.find_by_code(params[:id])
     @locale.destroy
 
     respond_to do |format|
