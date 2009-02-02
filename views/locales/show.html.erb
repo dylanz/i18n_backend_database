@@ -1,0 +1,13 @@
+<p>
+  <b>Code:</b>
+  <%=h @locale.code %>
+</p>
+
+<p>
+  <b>Name:</b>
+  <%=h @locale.name %>
+</p>
+
+
+<%= link_to 'Edit', edit_i18n_locale_path(@locale) %> |
+<%= link_to 'Back', i18n_locales_path %>

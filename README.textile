@@ -23,6 +23,14 @@ In config/initialisers/i18n.rb
   </code>
 </pre>
 
+In config/routes.rb to register admin panel routes
+
+<pre>
+  <code>
+    map.from_plugin 'i18n_backend_database'
+  </code>
+</pre>
+
 
 h2. TODO
 

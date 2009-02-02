@@ -1,0 +1,20 @@
+<h1>Editing locale</h1>
+
+<% form_for(@locale) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.label :code %><br />
+    <%= f.text_field :code %>
+  </p>
+  <p>
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </p>
+  <p>
+    <%= f.submit "Update" %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', @locale %> |
+<%= link_to 'Back', i18n_locales_path %>
