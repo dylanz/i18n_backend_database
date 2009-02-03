@@ -1,3 +1,1 @@
-map.resources :locales do |locales|
-  locales.resources :translations
-end
+map.resources :locales, :has_many => :translations
