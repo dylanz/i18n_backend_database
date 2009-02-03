@@ -10,6 +10,7 @@ class Locale < ActiveRecord::Base
     translation = self.translations.find(:first, :conditions => conditions)
     return translation if translation
 
+    conditions.merge!(:value => key) if self.code == I18n.default_locale.to_s
     self.translations.create(conditions)
   end
 

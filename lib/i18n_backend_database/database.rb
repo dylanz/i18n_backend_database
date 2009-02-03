@@ -25,7 +25,7 @@ module I18n
 
         # find or create translation record
         locale_in_context = (tmp_locale || @locale)
-        value = locale_in_context.find_or_create_translation(cache_key, options).value
+        value = locale_in_context.find_or_create_translation(key, options).value
 
         # NOTE: raw ok with non-memcache stores?
         @cache_store.write(cache_key, value, :raw => true)
