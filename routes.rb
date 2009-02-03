@@ -1,3 +1,3 @@
-map.resources :locales, :name_prefix => 'i18n_' do |locales|
+map.resources :locales do |locales|
   locales.resources :translations
 end

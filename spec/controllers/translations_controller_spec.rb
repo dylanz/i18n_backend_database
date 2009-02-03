@@ -89,14 +89,14 @@ describe TranslationsController do
       
       it "should expose a newly created translation as @translation" do
         mock_locale.translations.should_receive(:build).with({'these' => 'params'}).and_return(mock_translation(:save => true))
-        post :create, :locale_id => "en", :i18n_translation => {:these => 'params'}
+        post :create, :locale_id => "en", :translation => {:these => 'params'}
         assigns(:translation).should equal(mock_translation)
       end
 
       it "should redirect to the created translation" do
         mock_locale.translations.stub!(:build).and_return(mock_translation(:save => true))
-        post :create, :locale_id => "en", :i18n_translation => {}
-        response.should redirect_to(i18n_locale_translation_url(mock_locale, mock_translation))
+        post :create, :locale_id => "en", :translation => {}
+        response.should redirect_to(locale_translation_url(mock_locale, mock_translation))
       end
       
     end
@@ -105,13 +105,13 @@ describe TranslationsController do
 
       it "should expose a newly created but unsaved translation as @translation" do
         mock_locale.translations.stub!(:build).with({'these' => 'params'}).and_return(mock_translation(:save => false))
-        post :create, :locale_id => "en", :i18n_translation => {:these => 'params'}
+        post :create, :locale_id => "en", :translation => {:these => 'params'}
         assigns(:translation).should equal(mock_translation)
       end
 
       it "should re-render the 'new' template" do
         mock_locale.translations.stub!(:build).and_return(mock_translation(:save => false))
-        post :create, :locale_id => "en", :i18n_translation => {}
+        post :create, :locale_id => "en", :translation => {}
         response.should render_template('new')
       end
       
@@ -126,7 +126,7 @@ describe TranslationsController do
       it "should update the requested translation" do
         mock_locale.translations.should_receive(:find).with("37").and_return(mock_translation)
         mock_translation.should_receive(:update_attributes).with({'these' => 'params'})
-        put :update, :locale_id => "en", :id => "37", :i18n_translation => {:these => 'params'}
+        put :update, :locale_id => "en", :id => "37", :translation => {:these => 'params'}
       end
 
       it "should expose the requested translation as @translation" do
@@ -138,7 +138,7 @@ describe TranslationsController do
       it "should redirect to the translation" do
         mock_locale.translations.stub!(:find).and_return(mock_translation(:update_attributes => true))
         put :update, :locale_id => "en", :id => "1"
-        response.should redirect_to(i18n_locale_translation_url(mock_locale, mock_translation))
+        response.should redirect_to(locale_translation_url(mock_locale, mock_translation))
       end
 
     end
@@ -148,7 +148,7 @@ describe TranslationsController do
       it "should update the requested translation" do
         mock_locale.translations.should_receive(:find).with("37").and_return(mock_translation)
         mock_translation.should_receive(:update_attributes).with({'these' => 'params'})
-        put :update, :locale_id => "en", :id => "37", :i18n_translation => {:these => 'params'}
+        put :update, :locale_id => "en", :id => "37", :translation => {:these => 'params'}
       end
 
       it "should expose the translation as @translation" do
@@ -178,7 +178,7 @@ describe TranslationsController do
     it "should redirect to the translations list" do
       mock_locale.translations.stub!(:find).and_return(mock_translation(:destroy => true))
       delete :destroy, :locale_id => "en", :id => "1"
-      response.should redirect_to(i18n_locale_translations_url(mock_locale))
+      response.should redirect_to(locale_translations_url(mock_locale))
     end
 
   end

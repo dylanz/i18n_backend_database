@@ -1,0 +1,25 @@
+<h1>Listing translations for <%= @locale.code %></h1>
+
+<table>
+  <tr>
+    <th>Key</th>
+    <th>Value</th>
+    <th>Pluralization index</th>
+  </tr>
+
+<% for translation in @translations %>
+  <tr>
+    <td><%=h translation.key %></td>
+    <td><%=h translation.value %></td>
+    <td><%=h translation.pluralization_index %></td>
+    <td><%= link_to 'Show', locale_translation_path(@locale, translation) %></td>
+    <td><%= link_to 'Edit', edit_locale_translation_path(@locale, translation) %></td>
+    <td><%= link_to 'Destroy', locale_translation_path(@locale, translation), :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New translation', new_locale_translation_path %> |
+<%= link_to 'Back', locales_path %>

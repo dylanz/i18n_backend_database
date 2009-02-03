@@ -11,7 +11,7 @@
     <td><%=h locale.code %></td>
     <td><%=h locale.name %></td>
     <td><%= link_to 'Show', locale %></td>
-    <td><%= link_to 'Edit', edit_i18n_locale_path(locale) %></td>
+    <td><%= link_to 'Edit', edit_locale_path(locale) %></td>
     <td><%= link_to 'Destroy', locale, :confirm => 'Are you sure?', :method => :delete %></td>
   </tr>
 <% end %>
@@ -19,4 +19,4 @@
 
 <br />
 
-<%= link_to 'New locale', new_i18n_locale_path %>
+<%= link_to 'New locale', new_locale_path %>

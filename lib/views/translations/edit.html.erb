@@ -1,6 +1,6 @@
 <h1>Editing translation for <%= @locale.code %></h1>
 
-<% form_for(@translation, :url => i18n_locale_translation_path(@locale, @translation)) do |f| %>
+<% form_for([@locale, @translation]) do |f| %>
   <%= f.error_messages %>
 
   <p>
@@ -20,5 +20,5 @@
   </p>
 <% end %>
 
-<%= link_to 'Show', i18n_locale_translation_path(@locale, @translation) %> |
-<%= link_to 'Back', i18n_locale_translations_path %>
+<%= link_to 'Show', locale_translation_path(@locale, @translation) %> |
+<%= link_to 'Back', locale_translations_path %>

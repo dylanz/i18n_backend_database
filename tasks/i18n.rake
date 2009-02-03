@@ -33,7 +33,7 @@ end
 def load_from_yml(file_name)
   data = YAML::load(IO.read(file_name))
   data.each do |code, translations| 
-    locale = I18n::Locale.find_or_create_by_code(code)
+    locale = Locale.find_or_create_by_code(code)
     backend = I18n::Backend::Simple.new
     keys = extract_i18n_keys(translations)
     keys.each do |key|

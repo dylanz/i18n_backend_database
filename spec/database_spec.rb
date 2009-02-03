@@ -1,6 +1,4 @@
 require File.dirname(__FILE__) + '/spec_helper'
-require File.dirname(__FILE__) + '/../lib/locale'
-require File.dirname(__FILE__) + '/../lib/translation'
 
 describe I18n::Backend::Database do
   before {

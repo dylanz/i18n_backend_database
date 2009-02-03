@@ -76,14 +76,14 @@ describe LocalesController do
       
       it "should expose a newly created locale as @locale" do
         Locale.should_receive(:new).with({'these' => 'params'}).and_return(mock_locale(:save => true))
-        post :create, :i18n_locale => {:these => 'params'}
+        post :create, :locale => {:these => 'params'}
         assigns(:locale).should equal(mock_locale)
       end
 
       it "should redirect to the created locale" do
         Locale.stub!(:new).and_return(mock_locale(:save => true))
         post :create, :locale => {}
-        response.should redirect_to(i18n_locale_url(mock_locale))
+        response.should redirect_to(locale_url(mock_locale))
       end
       
     end
@@ -92,7 +92,7 @@ describe LocalesController do
 
       it "should expose a newly created but unsaved locale as @locale" do
         Locale.stub!(:new).with({'these' => 'params'}).and_return(mock_locale(:save => false))
-        post :create, :i18n_locale => {:these => 'params'}
+        post :create, :locale => {:these => 'params'}
         assigns(:locale).should equal(mock_locale)
       end
 
@@ -113,7 +113,7 @@ describe LocalesController do
       it "should update the requested locale" do
         Locale.should_receive(:find_by_code).with("en").and_return(mock_locale)
         mock_locale.should_receive(:update_attributes).with({'these' => 'params'})
-        put :update, :id => "en", :i18n_locale => {:these => 'params'}
+        put :update, :id => "en", :locale => {:these => 'params'}
       end
 
       it "should expose the requested locale as @locale" do
@@ -125,7 +125,7 @@ describe LocalesController do
       it "should redirect to the locale" do
         Locale.stub!(:find).and_return(mock_locale(:update_attributes => true))
         put :update, :id => "1"
-        response.should redirect_to(i18n_locale_url(mock_locale))
+        response.should redirect_to(locale_url(mock_locale))
       end
 
     end
@@ -135,7 +135,7 @@ describe LocalesController do
       it "should update the requested locale" do
         Locale.should_receive(:find_by_code).with("en").and_return(mock_locale)
         mock_locale.should_receive(:update_attributes).with({'these' => 'params'})
-        put :update, :id => "en", :i18n_locale => {:these => 'params'}
+        put :update, :id => "en", :locale => {:these => 'params'}
       end
 
       it "should expose the locale as @locale" do
@@ -165,7 +165,7 @@ describe LocalesController do
     it "should redirect to the locales list" do
       Locale.stub!(:find_by_code).and_return(mock_locale(:destroy => true))
       delete :destroy, :id => "en"
-      response.should redirect_to(i18n_locales_url)
+      response.should redirect_to(locales_url)
     end
 
   end

@@ -1,4 +1,4 @@
-class TranslationsController < ApplicationController
+class TranslationsController < ActionController::Base
   prepend_view_path(File.join(File.dirname(__FILE__), "..", "views"))
   before_filter :find_locale
   
@@ -43,12 +43,12 @@ class TranslationsController < ApplicationController
   # POST /translations
   # POST /translations.xml
   def create
-    @translation = @locale.translations.build(params[:i18n_translation])
+    @translation = @locale.translations.build(params[:translation])
 
     respond_to do |format|
       if @translation.save
         flash[:notice] = 'Translation was successfully created.'
-        format.html { redirect_to i18n_locale_translation_path(@locale, @translation) }
+        format.html { redirect_to locale_translation_path(@locale, @translation) }
         format.xml  { render :xml => @translation, :status => :created, :location => @translation }
       else
         format.html { render :action => "new" }
@@ -63,9 +63,9 @@ class TranslationsController < ApplicationController
     @translation = @locale.translations.find(params[:id])
 
     respond_to do |format|
-      if @translation.update_attributes(params[:i18n_translation])
+      if @translation.update_attributes(params[:translation])
         flash[:notice] = 'Translation was successfully updated.'
-        format.html { redirect_to i18n_locale_translation_path(@locale, @translation) }
+        format.html { redirect_to locale_translation_path(@locale, @translation) }
         format.xml  { head :ok }
       else
         format.html { render :action => "edit" }
@@ -81,7 +81,7 @@ class TranslationsController < ApplicationController
     @translation.destroy
 
     respond_to do |format|
-      format.html { redirect_to(i18n_locale_translations_url) }
+      format.html { redirect_to(locale_translations_url) }
       format.xml  { head :ok }
     end
   end

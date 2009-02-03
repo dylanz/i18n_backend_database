@@ -1,6 +1,5 @@
 class LocalesController < ActionController::Base
   prepend_view_path(File.join(File.dirname(__FILE__), "..", "views"))
-  
   # GET /locales
   # GET /locales.xml
   def index
@@ -42,7 +41,7 @@ class LocalesController < ActionController::Base
   # POST /locales
   # POST /locales.xml
   def create
-    @locale = Locale.new(params[:i18n_locale])
+    @locale = Locale.new(params[:locale])
 
     respond_to do |format|
       if @locale.save
@@ -62,7 +61,7 @@ class LocalesController < ActionController::Base
     @locale = Locale.find_by_code(params[:id])
 
     respond_to do |format|
-      if @locale.update_attributes(params[:i18n_locale])
+      if @locale.update_attributes(params[:locale])
         flash[:notice] = 'Locale was successfully updated.'
         format.html { redirect_to(@locale) }
         format.xml  { head :ok }
@@ -80,7 +79,7 @@ class LocalesController < ActionController::Base
     @locale.destroy
 
     respond_to do |format|
-      format.html { redirect_to(i18n_locales_url) }
+      format.html { redirect_to(locales_url) }
       format.xml  { head :ok }
     end
   end
