@@ -16,18 +16,30 @@ describe Locale do
     Locale.new(@valid_attributes).to_param.should == 'en'
   end
   
-  it "should create a translated translation if none exists for default locale" do
-    locale = Locale.create!(:code => "en")
-    translation = locale.find_or_create_translation('Hello World', {})
-    translation.key.should == 'Hello World'
-    translation.value.should == 'Hello World'  
+  describe "English and Spanish Locales with I18n default locale set to English" do
+    
+    before(:each) do
+      I18n.default_locale = "en"
+      @english_locale = Locale.create!(:code => "en")
+      @spanish_locale = Locale.create!(:code => "es")
+    end
+
+    it "should create a translated translation using english locale" do
+      translation = @english_locale.find_or_create_translation('Hello World', {})
+      translation.key.should == 'Hello World'
+      translation.value.should == 'Hello World'  
+    end
+
+    it "should create an untranslated translation using spanish locale" do
+      translation = @spanish_locale.find_or_create_translation('Hello World', {})
+      translation.key.should == 'Hello World'
+      translation.value.should be_nil  
+    end
+    
+    it "should return default locale of English" do
+      Locale.default_locale.should == @english_locale
+    end
+
   end
-  
-  it "should create an untranslated translation if none exists for non-default locale" do
-    locale = Locale.create!(:code => "es")
-    translation = locale.find_or_create_translation('Hello World', {})
-    translation.key.should == 'Hello World'
-    translation.value.should be_nil  
-  end
-  
+
 end

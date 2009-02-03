@@ -3,6 +3,12 @@ class Locale < ActiveRecord::Base
   validates_uniqueness_of :code
 
   has_many :translations
+  
+  @@default_locale = nil
+  
+  def self.default_locale
+    @@default_locale ||= self.find(:first, :conditions => {:code => I18n.default_locale.to_s })
+  end
 
   # find the translation, or create one if it doesn't exist
   def find_or_create_translation(key, options)
