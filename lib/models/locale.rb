@@ -2,7 +2,7 @@ class Locale < ActiveRecord::Base
   validates_presence_of :code
   validates_uniqueness_of :code
 
-  has_many :translations, :class_name => "Translation"
+  has_many :translations
 
   # find the translation, or create one if it doesn't exist
   def find_or_create_translation(key, options)
