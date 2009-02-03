@@ -8,15 +8,15 @@ describe TranslationsController do
       :to_param     => 'en'
     }.merge(stubs)
     
-    @mock_locale ||= mock_model(I18n::Locale, stubs)
+    @mock_locale ||= mock_model(Locale, stubs)
   end
   
   def mock_translation(stubs={})
-    @mock_translation ||= mock_model(I18n::Translation, stubs)
+    @mock_translation ||= mock_model(Translation, stubs)
   end
   
   before(:each) do
-    I18n::Locale.should_receive(:find_by_code).with('en').and_return(mock_locale)
+    Locale.should_receive(:find_by_code).with('en').and_return(mock_locale)
   end
   
   describe "responding to GET index" do
@@ -66,7 +66,7 @@ describe TranslationsController do
   describe "responding to GET new" do
   
     it "should expose a new translation as @translation" do
-      I18n::Translation.should_receive(:new).and_return(mock_translation)
+      Translation.should_receive(:new).and_return(mock_translation)
       get :new, :locale_id => "en"
       assigns[:translation].should equal(mock_translation)
     end

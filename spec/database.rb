@@ -1,14 +1,14 @@
 require File.dirname(__FILE__) + '/spec_helper'
-require File.dirname(__FILE__) + '/../lib/i18n_backend_database/locale'
-require File.dirname(__FILE__) + '/../lib/i18n_backend_database/translation'
+require File.dirname(__FILE__) + '/../lib/locale'
+require File.dirname(__FILE__) + '/../lib/translation'
 
 describe I18n::Backend::Database do
   before {
     I18n.locale = "es"
     @locales    = [:en, :es, :it]
-    @locale     = mock_model(I18n::Backend::Database::Locale, { :code => "es" })
-    I18n::Backend::Database::Locale.stub!(:available_locales).and_return(@locales)
-    I18n::Backend::Database::Locale.stub!(:find_by_code).and_return(@locale)
+    @locale     = mock_model(Locale, { :code => "es" })
+    Locale.stub!(:available_locales).and_return(@locales)
+    Locale.stub!(:find_by_code).and_return(@locale)
     @database   = I18n::Backend::Database.new
   }
 
@@ -27,7 +27,7 @@ describe I18n::Backend::Database do
     end
 
     it "should delegate the call to available_locales to the Locale class" do
-      I18n::Backend::Database::Locale.should_receive(:available_locales)
+      Locale.should_receive(:available_locales)
       @database.available_locales
     end
 
@@ -42,8 +42,8 @@ describe I18n::Backend::Database do
 
   describe "translating" do
     before {
-      @locale   = mock_model(I18n::Backend::Database::Locale, { :code => "es" })
-      I18n::Backend::Database::Locale.stub!(:find_by_code).and_return(@locale)
+      @locale   = mock_model(Locale, { :code => "es" })
+      Locale.stub!(:find_by_code).and_return(@locale)
       @database = I18n::Backend::Database.new({:cache_store => :memory_store})
     }
 

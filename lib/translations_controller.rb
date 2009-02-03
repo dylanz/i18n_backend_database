@@ -27,7 +27,7 @@ class TranslationsController < ApplicationController
   # GET /translations/new
   # GET /translations/new.xml
   def new
-    @translation = I18n::Translation.new
+    @translation = Translation.new
 
     respond_to do |format|
       format.html # new.html.erb
@@ -89,6 +89,6 @@ class TranslationsController < ApplicationController
   private
   
     def find_locale
-      @locale = I18n::Locale.find_by_code(params[:locale_id])
+      @locale = Locale.find_by_code(params[:locale_id])
     end
 end
