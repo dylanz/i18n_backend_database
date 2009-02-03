@@ -20,10 +20,6 @@ describe I18n::Backend::Database do
       @database.cache_store.class.should == ActiveSupport::Cache::MemCacheStore
     end
 
-    it "should have a handle to a Locale instance of the current threads locale" do
-      @database.locale.code.should == I18n.locale.to_s
-    end
-
     it "should delegate the call to available_locales to the Locale class" do
       Locale.should_receive(:available_locales)
       @database.available_locales
@@ -35,21 +31,6 @@ describe I18n::Backend::Database do
 
     it "should return a cache key of locale:key:pluralization on call to build_cache_key" do
       @database.send(:build_cache_key, @locale, "hola me amigo!", :pluralization_index => 1).should == "es:hola me amigo!:1"
-    end
-  end
-
-  describe "translating" do
-    before {
-      @locale   = mock_model(Locale, { :code => "es" })
-      Locale.stub!(:find_by_code).and_return(@locale)
-      @database = I18n::Backend::Database.new({:cache_store => :memory_store})
-    }
-
-    after { @database.cache_store.clear }
-
-    it "should return the value from the cache if available" do
-      @database.cache_store.write("es:hello:1", "hola")
-      @database.translate(@locale.code, "hello").should == "hola"
     end
   end
 end
