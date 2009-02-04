@@ -12,6 +12,10 @@ module I18n
         @cache_store = store ? ActiveSupport::Cache.lookup_store(store) : Rails.cache
       end
 
+      def locale=(code)
+        @locale = Locale.find_by_code(code)
+      end
+
       def cache_store=(store)
         @cache_store = ActiveSupport::Cache.lookup_store(store)
       end
@@ -32,28 +36,6 @@ module I18n
         value || key
       end
 
-      # keep a local copy of the locale in context for use within the translation
-      # routine, and also accept an arbitrary locale for one time locale lookups
-      def locale_in_context(tmp_locale)
-        if @locale && tmp_locale
-          # the passed locale is different than the cache
-          unless @locale.code == tmp_locale.to_s
-            Locale.find_by_code(tmp_locale.to_s)
-          else
-            @locale
-          end
-        elsif @locale
-          # synch cache with I18n.locale
-          unless @locale.code == I18n.locale.to_s
-            Locale.find_by_code(I18n.locale.to_s)
-          else
-            @locale
-          end
-        else
-          Locale.find_by_code(I18n.locale.to_s)
-        end
-      end
-
       def available_locales
         Locale.available_locales
       end
@@ -64,6 +46,28 @@ module I18n
       end
 
       protected
+        # keep a local copy of the locale in context for use within the translation
+        # routine, and also accept an arbitrary locale for one time locale lookups
+        def locale_in_context(tmp_locale=nil)
+          if @locale && tmp_locale
+            # the passed locale is different than the cache
+            unless @locale.code == tmp_locale.to_s
+              Locale.find_by_code(tmp_locale.to_s)
+            else
+              @locale
+            end
+          elsif @locale
+            # synch cache with I18n.locale
+            unless @locale.code == I18n.locale.to_s
+              Locale.find_by_code(I18n.locale.to_s)
+            else
+              @locale
+            end
+          else
+            Locale.find_by_code(I18n.locale.to_s)
+          end
+        end
+
         # locale:"key"
         def build_cache_key(locale, key)
           "#{locale.code}:#{key}"
