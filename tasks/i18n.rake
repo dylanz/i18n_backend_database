@@ -30,6 +30,14 @@ def load_from_csv(file_name)
   end
 end
 
+def load_default_locales(path_to_file=nil)
+  path_to_file ||= File.join(File.dirname(__FILE__), "../data", "locales.yml")
+  data = YAML::load(IO.read(path_to_file))
+  data.each do |code, y|
+    Locale.create({:code => code, :name => y["name"]})
+  end
+end
+
 def load_from_yml(file_name)
   data = YAML::load(IO.read(file_name))
   data.each do |code, translations| 
@@ -42,7 +50,6 @@ def load_from_yml(file_name)
       translation.value = value
       translation.save!
     end
-
   end
 end
 
@@ -75,6 +82,11 @@ namespace :i18n do
     desc 'Populate the locales and translations tables from a Locale YAML file.  Specify file using LOCALE_FILE=path_to_file'
     task :from_yaml => :environment do
       load_from_yml(ENV['LOCALE_FILE'])
+    end
+
+    desc 'Populate default locales'
+    task :load_default_locales => :environment do
+      load_default_locales(ENV['LOCALE_FILE'])
     end
   end
 end

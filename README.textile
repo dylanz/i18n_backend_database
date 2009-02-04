@@ -7,9 +7,9 @@ h2. Installation
 
 <pre>
   <code>
-    script/generate i18n_backend_database # add migration
-    rake db:migrate                       # migrate
-    rake i18n:populate:all                # populate locales (list from Java's LocaleServiceProvider)
+    script/generate i18n_backend_database      # add migration
+    rake db:migrate                            # migrate
+    rake i18n:populate:load_default_locales    # populate default locales
   </code>
 </pre>
 
