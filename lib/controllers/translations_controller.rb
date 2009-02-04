@@ -1,11 +1,24 @@
 class TranslationsController < ActionController::Base
   prepend_view_path(File.join(File.dirname(__FILE__), "..", "views"))
+  layout 'translations'
   before_filter :find_locale
   
   # GET /translations
   # GET /translations.xml
   def index
     @translations = @locale.translations.find(:all)
+
+    respond_to do |format|
+      format.html # index.html.erb
+      format.xml  { render :xml => @translations }
+    end
+  end
+
+  # GET /untranslated
+  # GET /untranslated.xml
+  def untranslated
+    @locale ||= Locale.default_locale
+    @translations = @locale.translations.untranslated
 
     respond_to do |format|
       format.html # index.html.erb
@@ -67,6 +80,7 @@ class TranslationsController < ActionController::Base
         flash[:notice] = 'Translation was successfully updated.'
         format.html { redirect_to locale_translation_path(@locale, @translation) }
         format.xml  { head :ok }
+        format.js   {}
       else
         format.html { render :action => "edit" }
         format.xml  { render :xml => @translation.errors, :status => :unprocessable_entity }

@@ -1,0 +1,22 @@
+<p>
+  <%= "Select locale" %>
+  <% for locale in Locale.all %>
+    <%= link_to locale.code, url_for(:locale_id => locale.code) %> &middot;
+  <% end %>
+</p>
+
+<h1>Untranslated: <%= @locale.code %></h1>
+
+<% for translation in @translations %>
+  <div id="<%= "translation_#{translation.class}_#{translation.id}" %>">
+  <% remote_form_for([@locale, translation]) do |f| %>
+    <p><%=h translation.default_locale_value %></p>
+    <p><%=h translation.value %></p>
+    <p>
+      <%= f.text_field :value %>
+      <%= f.submit "Update" %>
+    </p>
+  <% end %>
+  <hr/>
+  </div>
+<% end %>
