@@ -2,7 +2,7 @@ class Locale < ActiveRecord::Base
   validates_presence_of :code
   validates_uniqueness_of :code
 
-  has_many :translations
+  has_many :translations, :dependent => :destroy
 
   @@default_locale = nil
 
