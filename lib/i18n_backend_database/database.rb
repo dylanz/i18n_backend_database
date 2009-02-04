@@ -18,7 +18,7 @@ module I18n
 
       def translate(locale, key, options = {})
         @locale   = locale_in_context(locale)
-        cache_key = build_cache_key((@locale), generate_hash_key(key), options)
+        cache_key = build_cache_key(@locale, generate_hash_key(key), options)
 
         # check for key and return it if it exists
         value = @cache_store.read(cache_key)
@@ -26,7 +26,7 @@ module I18n
 
         # find or create translation record, and write to the store
         # NOTE: raw ok with non-memcache stores?
-        value = @locale.find_or_create_translation(key, cache_key, options).value
+        value = @locale.find_or_create_translation(generate_hash_key(key), key, options).value
         @cache_store.write(cache_key, value, :raw => true)
 
         value || key

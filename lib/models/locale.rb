@@ -3,21 +3,21 @@ class Locale < ActiveRecord::Base
   validates_uniqueness_of :code
 
   has_many :translations
-  
+
   @@default_locale = nil
-  
+
   def self.default_locale
-    @@default_locale ||= self.find(:first, :conditions => {:code => I18n.default_locale.to_s })
+    @@default_locale ||= self.find(:first, :conditions => {:code => I18n.default_locale.to_s})
   end
 
   # find the translation, or create one if it doesn't exist
-  def find_or_create_translation(key, cache_key, options)
-    conditions  = {:key => cache_key, :pluralization_index => (options[:pluralization_index] || 1)}
+  def find_or_create_translation(key, value, options = {})
+    conditions  = {:key => key, :pluralization_index => (options[:pluralization_index] || 1)}
     translation = self.translations.find(:first, :conditions => conditions)
     return translation if translation
 
     # set the key as the value if we're using the current locale
-    conditions.merge!({:value => key}) if (self.code == I18n.default_locale.to_s)
+    conditions.merge!({:value => value}) if (self.code == I18n.default_locale.to_s)
     self.translations.create(conditions)
   end
 

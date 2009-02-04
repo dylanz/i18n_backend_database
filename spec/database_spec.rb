@@ -33,4 +33,10 @@ describe I18n::Backend::Database do
       @database.send(:build_cache_key, @locale, "hola me amigo!", :pluralization_index => 1).should == "es:hola me amigo!:1"
     end
   end
+
+  describe "setting a locale in context" do
+    #it "should set the locale to a temporary value if one is passed in" do
+    #  @database.locale_in_context("es").should ==
+    #end
+  end
 end

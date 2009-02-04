@@ -11,13 +11,13 @@ describe Locale do
   it "should create a new instance given valid attributes" do
     Locale.create!(@valid_attributes)
   end
-  
+
   it "should return code as to_param" do
     Locale.new(@valid_attributes).to_param.should == 'en'
   end
-  
+
   describe "English and Spanish Locales with I18n default locale set to English" do
-    
+
     before(:each) do
       I18n.default_locale = "en"
       @english_locale = Locale.create!(:code => "en")
@@ -25,17 +25,17 @@ describe Locale do
     end
 
     it "should create a translated translation using english locale" do
-      translation = @english_locale.find_or_create_translation('Hello World', {})
+      translation = @english_locale.find_or_create_translation('Hello World', 'Hello World')
       translation.key.should == 'Hello World'
-      translation.value.should == 'Hello World'  
+      translation.value.should == 'Hello World'
     end
 
     it "should create an untranslated translation using spanish locale" do
-      translation = @spanish_locale.find_or_create_translation('Hello World', {})
+      translation = @spanish_locale.find_or_create_translation('Hello World', 'Hello World')
       translation.key.should == 'Hello World'
-      translation.value.should be_nil  
+      translation.value.should be_nil
     end
-    
+
     it "should return default locale of English" do
       Locale.default_locale.should == @english_locale
     end
