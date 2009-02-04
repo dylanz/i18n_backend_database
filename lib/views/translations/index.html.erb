@@ -4,6 +4,7 @@
   <tr>
     <th>Key</th>
     <th>Value</th>
+    <th>Default Locale Value</th>
     <th>Pluralization index</th>
   </tr>
 
@@ -11,6 +12,7 @@
   <tr>
     <td><%=h translation.key %></td>
     <td><%=h translation.value %></td>
+    <td><%=h translation.default_locale_value %></td>
     <td><%=h translation.pluralization_index %></td>
     <td><%= link_to 'Show', locale_translation_path(@locale, translation) %></td>
     <td><%= link_to 'Edit', edit_locale_translation_path(@locale, translation) %></td>
