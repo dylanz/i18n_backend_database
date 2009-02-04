@@ -35,7 +35,7 @@ In config/routes.rb to register admin panel routes
 h2. TODO
 
 * I18n.ta ?
-* pluralization to be added/rules imported
+* pluralization to be added/rules imported?
 * interpolation
 * namespacing
 * bulk lookup

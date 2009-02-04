@@ -29,8 +29,8 @@ describe I18n::Backend::Database do
       @database.available_locales.should == @locales
     end
 
-    it "should return a cache key of locale:key:pluralization on call to build_cache_key" do
-      @database.send(:build_cache_key, @locale, "hola me amigo!", :pluralization_index => 1).should == "es:hola me amigo!:1"
+    it "should return a cache key of locale:key on call to build_cache_key" do
+      @database.send(:build_cache_key, @locale, "hola me amigo!").should == "es:hola me amigo!"
     end
   end
 

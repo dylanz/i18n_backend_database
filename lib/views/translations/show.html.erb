@@ -13,11 +13,5 @@
   <%=h @translation.value %>
 </p>
 
-<p>
-  <b>Pluralization index:</b>
-  <%=h @translation.pluralization_index %>
-</p>
-
-
 <%= link_to 'Edit', edit_locale_translation_path(@locale, @translation) %> |
 <%= link_to 'Back', locale_translations_path %>

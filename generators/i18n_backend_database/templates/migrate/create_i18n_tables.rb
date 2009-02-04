@@ -9,7 +9,6 @@ class CreateI18nTables < ActiveRecord::Migration
     create_table :translations do |t|
       t.string   :key
       t.string   :value
-      t.integer  :pluralization_index
       t.integer  :locale_id
     end
     add_index :translations, [:locale_id, :key]

@@ -9,18 +9,20 @@ class Locale < ActiveRecord::Base
   def self.default_locale
     @@default_locale ||= self.find(:first, :conditions => {:code => I18n.default_locale.to_s})
   end
-  
+
   def self.reset_default_locale
     @@default_locale = nil
   end
 
   # find the translation, or create one if it doesn't exist
-  def find_or_create_translation(key, value, options = {})
-    conditions  = {:key => key, :pluralization_index => (options[:pluralization_index] || 1)}
+  def find_or_create_translation(key, value)
+    conditions  = {:key => key}
+
+    # return the translation if it exists
     translation = self.translations.find(:first, :conditions => conditions)
     return translation if translation
 
-    # set the key as the value if we're using the current locale
+    # set the key as the value if we're using the default locale
     conditions.merge!({:value => value}) if (self.code == I18n.default_locale.to_s)
     self.translations.create(conditions)
   end

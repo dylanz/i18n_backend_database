@@ -4,8 +4,7 @@ describe Translation do
   before(:each) do
     @valid_attributes = {
       :key   => "Hello World",
-      :value => "Hello World", 
-      :pluralization_index => 1
+      :value => "Hello World"
     }
   end
 
@@ -24,7 +23,7 @@ describe Translation do
     describe "with one English translation" do
       
       before(:each) do
-        @english_translation = @english_locale.translations.create(:key => 'Hello World', :value => 'Hello World', :pluralization_index => 1)
+        @english_translation = @english_locale.translations.create(:key => 'Hello World', :value => 'Hello World')
       end
       
       it "should have a default locale value" do
