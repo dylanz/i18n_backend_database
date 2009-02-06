@@ -50,18 +50,39 @@ describe I18n::Backend::Database do
   end
 
   describe "translating a key" do
-    it "should have specs outlining the results of all the translation possibilities"
-
     describe "for the first time in the default locale" do
+      before {
+        I18n.locale = "en"
+        I18n.default_locale = "en"
+        @database = I18n::Backend::Database.new
+        @database.translate(:en, "dog")
+      }
+
+      it "should set the value of the translation" do
+        Translation.first.value.should == "dog"
+      end
     end
 
     describe "for the first time in an alternate locale" do
+      before {
+        I18n.locale = "es"
+        I18n.default_locale = "en"
+        Locale.create({:code => "es", :name => "Spanish"})
+        @database = I18n::Backend::Database.new
+        @database.translate(:es, "dog")
+      }
+
+      it "should set the value of the translation to nil" do
+        Translation.first.value.should == nil
+      end
     end
 
     describe "for the subsequent call in the default locale" do
+      it "should have specs outlining the results of all the translation possibilities"
     end
 
     describe "for the subsequent call in the alternate locale" do
+      it "should have specs outlining the results of all the translation possibilities"
     end
   end
 

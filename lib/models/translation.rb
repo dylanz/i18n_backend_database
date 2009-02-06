@@ -1,6 +1,7 @@
 class Translation < ActiveRecord::Base
   belongs_to :locale
-  
+  validates_presence_of :key
+
   named_scope :untranslated, :conditions => {:value => nil}
 
   def default_locale_value

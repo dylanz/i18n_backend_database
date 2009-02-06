@@ -14,13 +14,12 @@ class Locale < ActiveRecord::Base
     @@default_locale = nil
   end
 
-  # find the translation, or create one if it doesn't exist
-  def find_or_create_translation(key, value)
-    conditions  = {:key => key}
+  def translation_from_key(key)
+    self.translations.find(:first, :conditions => {:key => key})
+  end
 
-    # return the translation if it exists
-    translation = self.translations.find(:first, :conditions => conditions)
-    return translation if translation
+  def create_translation(key, value)
+    conditions = {:key => key}
 
     # set the key as the value if we're using the default locale
     conditions.merge!({:value => value}) if (self.code == I18n.default_locale.to_s)
