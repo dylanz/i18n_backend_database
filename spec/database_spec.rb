@@ -54,6 +54,7 @@ describe I18n::Backend::Database do
       before {
         I18n.locale = "en"
         I18n.default_locale = "en"
+        Locale.create({:code => "en", :name => "English"})
         @database = I18n::Backend::Database.new
         @database.translate(:en, "dog")
       }
