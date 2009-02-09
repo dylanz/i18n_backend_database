@@ -7,8 +7,10 @@ Spec::Runner.configure do |config|
   config.use_transactional_fixtures = true
   config.use_instantiated_fixtures  = false
 
-  config.before(:each) do
+  config.after(:each) do
     Locale.reset_default_locale
+    I18n.locale = "en"
+    I18n.default_locale = "en"
   end
 
 end
