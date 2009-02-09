@@ -50,8 +50,9 @@ module I18n
         count, scope, default = options.values_at(:count, *reserved)
         options.delete(:default)
         values = options.reject { |name, value| reserved.include?(name) }
-
-        cache_key = build_cache_key(@locale, generate_hash_key(key))
+        
+        hash_key  = generate_hash_key(key)
+        cache_key = build_cache_key(@locale, hash_key)
 
         # check cache for key and return value if it exists
         value = @cache_store.read(cache_key)
@@ -72,7 +73,7 @@ module I18n
         end
 
         # create the database and cache records
-        value = @locale.create_translation(cache_key, (value || key)).value
+        value = @locale.create_translation(hash_key, (value || key)).value
         @cache_store.write(cache_key, value, :raw => true)
 
         value = pluralize(locale, value, count)
