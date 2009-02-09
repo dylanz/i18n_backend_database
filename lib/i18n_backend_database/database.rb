@@ -59,7 +59,7 @@ module I18n
         return interpolate(locale, pluralize(locale, value, count), values) if value
 
         # check database for key and return value if it exists
-        translation = @locale.translation_from_key(cache_key)
+        translation = @locale.translation_from_key(hash_key)
         return interpolate(locale, pluralize(locale, translation.value, count), values) if translation
 
         # check default i18n load paths and return value if it exists
