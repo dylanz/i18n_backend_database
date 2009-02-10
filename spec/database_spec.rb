@@ -50,6 +50,8 @@ describe I18n::Backend::Database do
   end
 
   describe "omg an aminal" do
+    before { Locale.create!(:code => "en") }
+
     it "should contain one 'blank' key in the database" do
       l = Locale.new
       l.valid?
@@ -73,7 +75,7 @@ describe I18n::Backend::Database do
 
       l = Locale.new
       l.valid?
-      l.errors_on(:code).should include("can't be blank")
+      l.errors_on(:code).should include("ain't blank sucka")
 
       Locale.class_eval do
         validates_presence_of :code
