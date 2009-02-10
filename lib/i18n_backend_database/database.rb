@@ -50,22 +50,35 @@ module I18n
         count, scope, default = options.values_at(:count, *reserved)
         options.delete(:default)
         values = options.reject { |name, value| reserved.include?(name) }
-        
+
         hash_key  = generate_hash_key(key)
         cache_key = build_cache_key(@locale, hash_key)
 
-        # check cache for key and return value if it exists
-        value = @cache_store.read(cache_key)
-        return interpolate(locale, pluralize(locale, value, count), values) if value
+        if internal_lookup?(original_key, default)
+          return value_from_lookup({
+            :locale  => locale,
+            :key     => original_key,
+            :scope   => scope,
+            :default => default,
+            :options => options
+          })
+        else
+          # check cache for key and return value if it exists
+          value = @cache_store.read(cache_key)
+          return interpolate(locale, pluralize(locale, value, count), values) if value
 
-        # check database for key and return value if it exists
-        translation = @locale.translation_from_key(hash_key)
-        return interpolate(locale, pluralize(locale, translation.value, count), values) if translation
+          # check database for key and return value if it exists
+          translation = @locale.translation_from_key(hash_key)
+          return interpolate(locale, pluralize(locale, translation.value, count), values) if translation
 
-        # check default i18n load paths and return value if it exists
-        value = lookup(locale, original_key, scope)
-        value = value[:other] if value.is_a?(Hash)
-        value = default(locale, default, options) if value.nil?
+          value = value_from_lookup({
+            :locale  => locale,
+            :key     => original_key,
+            :scope   => scope,
+            :default => default,
+            :options => options
+          })
+        end
 
         if scope && value.nil?
           # throw to escape from recursive default lookup
@@ -120,6 +133,18 @@ module I18n
 
         def generate_hash_key(key)
           Base64.encode64(Digest::MD5.hexdigest(key))
+        end
+
+        def internal_lookup?(key, default)
+          key.is_a?(Symbol) && default.is_a?(Array) && default.all? {|a| a.is_a?(Symbol)}
+        end
+
+        # check default i18n load paths and return value if it exists
+        def value_from_lookup(args = {})
+          value = lookup(args[:locale], args[:original_key], args[:scope])
+          value = value[:other] if value.is_a?(Hash)
+          value = default(args[:locale], args[:default], args[:options]) if value.nil?
+          return value
         end
     end
   end
