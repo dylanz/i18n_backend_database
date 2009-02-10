@@ -26,7 +26,7 @@ class Locale < ActiveRecord::Base
     translation = self.translations.create(conditions)
 
     # hackity hack.  bug #922 maybe?
-    self.connection.commit_db_transaction
+    self.connection.commit_db_transaction unless RAILS_ENV['test']
     translation
   end
 
