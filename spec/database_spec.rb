@@ -49,6 +49,42 @@ describe I18n::Backend::Database do
     end
   end
 
+  describe "omg an aminal" do
+    it "should contain one 'blank' key in the database" do
+      l = Locale.new
+      l.valid?
+      Translation.find_by_value("can't be blank").should_not be_nil
+    end
+
+    it "should contain one 'blank' key and one custom 'blank' key in the database" do
+      Locale.class_eval do
+        validates_presence_of :code, :message => "ain't blank sucka"
+      end
+      l = Locale.new
+      l.valid?
+      Translation.find_by_value("ain't blank sucka").should_not be_nil
+      Translation.find_by_value("can't be blank").should be_nil
+    end
+
+    it "should use the blank code if a custom code is present, but not enabled" do
+      Locale.class_eval do
+        validates_presence_of :code, :message => "ain't blank sucka"
+      end
+
+      l = Locale.new
+      l.valid?
+      l.errors_on(:code).should include("can't be blank")
+
+      Locale.class_eval do
+        validates_presence_of :code
+      end
+
+      l = Locale.new
+      l.valid?
+      l.errors_on(:code).should include("can't be blank")
+    end
+  end
+
   describe "translating a key" do
     describe "for the first time in the default locale" do
       before {
