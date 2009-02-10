@@ -38,6 +38,12 @@ def load_default_locales(path_to_file=nil)
   end
 end
 
+def load_from_rails
+  I18n.load_path.each do |file|
+    load_from_yml file
+  end
+end
+
 def load_from_yml(file_name)
   data = YAML::load(IO.read(file_name))
   data.each do |code, translations| 
@@ -88,6 +94,11 @@ namespace :i18n do
     desc 'Populate the locales and translations tables from a Locale YAML file.  Specify file using LOCALE_FILE=path_to_file'
     task :from_yaml => :environment do
       load_from_yml(ENV['LOCALE_FILE'])
+    end
+
+    desc 'Populate the locales and translations tables from all Rails Locale YAML files.'
+    task :from_rails => :environment do
+      load_from_rails
     end
 
     desc 'Populate default locales'
