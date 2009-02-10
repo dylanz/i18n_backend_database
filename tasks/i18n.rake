@@ -68,6 +68,12 @@ def extract_i18n_keys(hash, parent_keys = [])
 end
 
 namespace :i18n do
+  
+  desc 'Clear cache'
+  task :clear_cache => :environment do
+    I18n.backend.cache_store.clear
+  end
+  
   namespace :populate do
     desc 'Populate locales and translations tables'
     task :all do
