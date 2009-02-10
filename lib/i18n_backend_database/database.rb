@@ -55,13 +55,10 @@ module I18n
         cache_key = build_cache_key(@locale, hash_key)
 
         if internal_lookup?(original_key, default)
-          return value_from_lookup({
-            :locale  => locale,
-            :key     => original_key,
-            :scope   => scope,
-            :default => default,
-            :options => options
-          })
+          value = lookup(locale, original_key, scope)
+          value = value[:other] if value.is_a?(Hash)
+          value = default(locale, default, options) if value.nil?
+          return value
         else
           # check cache for key and return value if it exists
           value = @cache_store.read(cache_key)
@@ -71,13 +68,9 @@ module I18n
           translation = @locale.translation_from_key(hash_key)
           return interpolate(locale, pluralize(locale, translation.value, count), values) if translation
 
-          value = value_from_lookup({
-            :locale  => locale,
-            :key     => original_key,
-            :scope   => scope,
-            :default => default,
-            :options => options
-          })
+          value = lookup(locale, original_key, scope)
+          value = value[:other] if value.is_a?(Hash)
+          value = default(locale, default, options) if value.nil?
         end
 
         if scope && value.nil?
