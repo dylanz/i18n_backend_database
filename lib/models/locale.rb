@@ -1,5 +1,5 @@
 class Locale < ActiveRecord::Base
-  validates_presence_of :code#, :message => "oh it can't be blank sucka!"
+  validates_presence_of :code
   validates_uniqueness_of :code
 
   has_many :translations, :dependent => :destroy

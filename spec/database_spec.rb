@@ -50,18 +50,21 @@ describe I18n::Backend::Database do
   end
 
   describe "omg an aminal" do
-    before { Locale.create!(:code => "en") }
-
+    
+    before(:each) do
+      Locale.instance_variable_set("@validate_callbacks", ActiveSupport::Callbacks::CallbackChain.new)
+      Locale.create!(:code => "en")
+    end
+    
     it "should contain one 'blank' key in the database" do
+      Locale.validates_presence_of :code
       l = Locale.new
       l.valid?
       Translation.find_by_value("can't be blank").should_not be_nil
     end
 
     it "should contain one 'blank' key and one custom 'blank' key in the database" do
-      Locale.class_eval do
-        validates_presence_of :code, :message => "ain't blank sucka"
-      end
+      Locale.validates_presence_of :code, :message => "ain't blank sucka"
       l = Locale.new
       l.valid?
       Translation.find_by_value("ain't blank sucka").should_not be_nil
@@ -69,17 +72,13 @@ describe I18n::Backend::Database do
     end
 
     it "should use the blank code if a custom code is present, but not enabled" do
-      Locale.class_eval do
-        validates_presence_of :code, :message => "ain't blank sucka"
-      end
+      Locale.validates_presence_of :code, :message => "ain't blank sucka"
 
       l = Locale.new
       l.valid?
       l.errors_on(:code).should include("ain't blank sucka")
 
-      Locale.class_eval do
-        validates_presence_of :code
-      end
+      Locale.validates_presence_of :code
 
       l = Locale.new
       l.valid?
