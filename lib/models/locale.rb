@@ -1,5 +1,5 @@
 class Locale < ActiveRecord::Base
-  validates_presence_of :code
+  validates_presence_of :code#, :message => "oh it can't be blank sucka!"
   validates_uniqueness_of :code
 
   has_many :translations, :dependent => :destroy
@@ -23,7 +23,11 @@ class Locale < ActiveRecord::Base
 
     # set the key as the value if we're using the default locale
     conditions.merge!({:value => value}) if (self.code == I18n.default_locale.to_s)
-    self.translations.create(conditions)
+    translation = self.translations.create(conditions)
+
+    # hackity hack.  bug #922 maybe?
+    self.connection.commit_db_transaction
+    translation
   end
 
   def self.available_locales
