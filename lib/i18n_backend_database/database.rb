@@ -20,6 +20,35 @@ module I18n
       def cache_store=(store)
         @cache_store = ActiveSupport::Cache.lookup_store(store)
       end
+      
+      def trans(locale, key, options = {})
+        locale = Locale.find_by_code(locale)
+        
+        # create a composite key if scope provided
+        key = "#{options[:scope].join('.')}.#{key}" if options[:scope] && key.is_a?(Symbol)
+puts "key = #{key}"        
+        # look in the database for the translation in current locale
+        translation = locale.translations.find_by_key(key)
+
+        # if the current locale is not the default locale and we have no translation
+        # look in the database for the translation in default locale
+        if locale != Locale.default_locale && !translation
+          translation = Locale.default_locale.translations.find_by_key(key)
+          # if we find the translation in the default locale then create one in the current locale
+          locale.create_translation(key, key) if translation
+        end
+        
+        # if we have no translation and some defaults ... start looking then up
+        unless translation || options[:default].blank?
+          default = options[:default].shift
+          return trans(locale.code, default, options.dup)
+        end
+        
+        # if we still have no blasted translation just go and create one for the current locale!
+        translation = locale.create_translation(key, key) unless translation
+        
+        return translation.value_or_default
+      end
 
       # handles the lookup and addition of translations to the database
       #
