@@ -30,6 +30,14 @@ class Locale < ActiveRecord::Base
     translation
   end
   
+  def find_translation_or_copy_from_default_locale(key)
+    self.translations.find_by_key(key) || copy_from_default(key)
+  end
+  
+  def copy_from_default(key)
+    create_translation(key, key) if !self.default_locale? && Locale.default_locale.has_translation?(key)
+  end
+  
   def has_translation?(key)
     self.translations.exists?(:key => key)
   end

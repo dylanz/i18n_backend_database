@@ -27,14 +27,7 @@ module I18n
         # create a composite key if scope provided
         key = "#{options[:scope].join('.')}.#{key}" if options[:scope] && key.is_a?(Symbol)
 puts "key = #{key}"        
-        # look in the database for the translation in current locale
-        translation = locale.translations.find_by_key(key)
-
-        # if the current locale is not the default locale and we have no translation
-        # look in the database for the translation in default locale
-        unless locale.default_locale? || translation  
-          translation = locale.create_translation(key, key) if Locale.default_locale.has_translation?(key)
-        end
+        translation = locale.find_translation_or_copy_from_default_locale(key)
         
         # if we have no translation and some defaults ... start looking them up
         unless translation || options[:default].blank?
