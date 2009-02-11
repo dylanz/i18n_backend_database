@@ -21,8 +21,8 @@ module I18n
         @cache_store = ActiveSupport::Cache.lookup_store(store)
       end
       
-      def trans(locale, key, options = {})
-        locale = Locale.find_by_code(locale)
+      def translate(locale, key, options = {})
+        locale = Locale.find_by_code(locale.to_s)
 
         # create a composite key if scope provided
         key = "#{options[:scope].join('.')}.#{key}" if options[:scope] && key.is_a?(Symbol)
@@ -32,7 +32,7 @@ puts "key = #{key}"
         # if we have no translation and some defaults ... start looking them up
         unless translation || options[:default].blank?
           default = options[:default].shift
-          return trans(locale.code, default, options.dup)
+          return translate(locale.code, default, options.dup)
         end
         
         # if we still have no blasted translation just go and create one for the current locale!
@@ -62,7 +62,7 @@ puts "key = #{key}"
       #
       # on misses, we update the cache and database, and return the key:
       # Rails.cache -> Database -> I18n.load_path -> Database -> Rails.cache
-      def translate(locale, key, options = {})
+      def translate_deprecated(locale, key, options = {})
         @locale = locale_in_context(locale)
 
         puts "options: " + options.inspect

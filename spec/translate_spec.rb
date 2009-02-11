@@ -20,7 +20,7 @@ describe I18n::Backend::Database do
       end
 
       it "should create a record with the key as the value when the key is a string" do
-        @backend.trans("en", "String").should == "String"
+        @backend.translate("en", "String").should == "String"
         @english_locale.should have(1).translation
         @english_locale.translations.first.key.should == "String"
         @english_locale.translations.first.value.should == "String"
@@ -28,14 +28,14 @@ describe I18n::Backend::Database do
       
       it "should find a record with the key as the value when the key is a string" do
         @english_locale.translations.create!(:key => 'String', :value => 'Value')
-        @backend.trans("en", "String").should == "Value"
+        @backend.translate("en", "String").should == "Value"
         @english_locale.should have(1).translation
       end
 
       it "should be able to handle interpolated values" do
         options = {:count=>1, :model => ["Cheese"], :scope=>[:activerecord, :errors], :default=>["Locale"]}
         @english_locale.translations.create!(:key => 'activerecord.errors.messages.blank', :value => '{{count}} errors prohibited this {{model}} from being saved')
-        @backend.trans("en", :"messages.blank", options).should == '1 errors prohibited this Cheese from being saved'
+        @backend.translate("en", :"messages.blank", options).should == '1 errors prohibited this Cheese from being saved'
       end
       
       it "should find lowest level translation" do
@@ -44,7 +44,7 @@ describe I18n::Backend::Database do
         options = {:attribute=>"Locale", :value=>nil, 
           :scope=>[:activerecord, :errors], :default=>[:"models.translation.blank", :"messages.blank"], :model=>"Translation"}
       
-        @backend.trans("en", :"models.translation.attributes.locale.blank", options).should == "is blank moron!"
+        @backend.translate("en", :"models.translation.attributes.locale.blank", options).should == "is blank moron!"
       end
 
       it "should find higher level translation" do
@@ -54,7 +54,7 @@ describe I18n::Backend::Database do
         options = {:attribute=>"Locale", :value=>nil, 
           :scope=>[:activerecord, :errors], :default=>[:"models.translation.blank", :"messages.blank"], :model=>"Translation"}
       
-        @backend.trans("en", :"models.translation.attributes.locale.blank", options).should == "translation blank"
+        @backend.translate("en", :"models.translation.attributes.locale.blank", options).should == "translation blank"
       end
 
       it "should find highest level translation" do
@@ -65,7 +65,7 @@ describe I18n::Backend::Database do
         options = {:attribute=>"Locale", :value=>nil, 
           :scope=>[:activerecord, :errors], :default=>[:"models.translation.blank", :"messages.blank"], :model=>"Translation"}
       
-        @backend.trans("en", :"models.translation.attributes.locale.blank", options).should == "translation locale blank"
+        @backend.translate("en", :"models.translation.attributes.locale.blank", options).should == "translation locale blank"
       end
       
       it "should find the translation for custom message" do
@@ -75,7 +75,7 @@ describe I18n::Backend::Database do
         options = {:attribute=>"Locale", :value=>nil, 
           :scope=>[:activerecord, :errors], :default=>[:"models.translation.blank", "This is a custom message!", :"messages.blank"], :model=>"Translation"}
 
-        @backend.trans("en", :"models.translation.attributes.locale.blank", options).should == "This is a custom message!"
+        @backend.translate("en", :"models.translation.attributes.locale.blank", options).should == "This is a custom message!"
       end
 
       it "should NOT find the translation for custom message" do
@@ -85,7 +85,7 @@ describe I18n::Backend::Database do
         options = {:attribute=>"Locale", :value=>nil, 
           :scope=>[:activerecord, :errors], :default=>[:"models.translation.blank", :"messages.blank"], :model=>"Translation"}
       
-        @backend.trans("en", :"models.translation.attributes.locale.blank", options).should == "is blank moron!"
+        @backend.translate("en", :"models.translation.attributes.locale.blank", options).should == "is blank moron!"
       end
 
     end
@@ -98,7 +98,7 @@ describe I18n::Backend::Database do
       end
       
       it "should create a record with a nil value when the key is a string" do
-        @backend.trans("es", "String")
+        @backend.translate("es", "String")
         @spanish_locale.should have(1).translation
         @spanish_locale.translations.first.key.should == "String"
         @spanish_locale.translations.first.value.should be_nil
@@ -106,12 +106,12 @@ describe I18n::Backend::Database do
       
       it "should return default locale (en) value and create the spanish record" do
         @english_locale.translations.create!(:key => 'String', :value => 'English String')
-        @backend.trans("es", "String").should == "English String"
+        @backend.translate("es", "String").should == "English String"
         @spanish_locale.should have(1).translation
       end
       
       it "should return just the passed in value when no translated record and no default translation" do
-        @backend.trans("es", "String").should == "String" 
+        @backend.translate("es", "String").should == "String" 
         @spanish_locale.should have(1).translation
       end
 
@@ -119,7 +119,7 @@ describe I18n::Backend::Database do
       it "should be able to handle interpolated values" do
         options = {:count=>1, :model => ["Cheese"], :scope=>[:activerecord, :errors], :default=>["Locale"]}
         @english_locale.translations.create!(:key => 'activerecord.errors.messages.blank', :value => '{{count}} error prohibited this {{model}} from being saved')
-        @backend.trans("es", :"messages.blank", options).should == '1 error prohibited this Cheese from being saved'
+        @backend.translate("es", :"messages.blank", options).should == '1 error prohibited this Cheese from being saved'
       end
 
       it "should have some pluralization tests for both locales"
@@ -130,7 +130,7 @@ describe I18n::Backend::Database do
         options = {:attribute=>"Locale", :value=>nil, 
           :scope=>[:activerecord, :errors], :default=>[:"models.translation.blank", :"messages.blank"], :model=>"Translation"}
       
-        @backend.trans("es", :"models.translation.attributes.locale.blank", options).should == "is blank moron!"
+        @backend.translate("es", :"models.translation.attributes.locale.blank", options).should == "is blank moron!"
         
         @spanish_locale.should have(1).translation
         @spanish_locale.translations.first.key.should == "activerecord.errors.messages.blank"
@@ -144,7 +144,7 @@ describe I18n::Backend::Database do
         options = {:attribute=>"Locale", :value=>nil, 
           :scope=>[:activerecord, :errors], :default=>[:"models.translation.blank", :"messages.blank"], :model=>"Translation"}
       
-        @backend.trans("es", :"models.translation.attributes.locale.blank", options).should == "translation blank"
+        @backend.translate("es", :"models.translation.attributes.locale.blank", options).should == "translation blank"
         @spanish_locale.should have(1).translation
         @spanish_locale.translations.first.key.should == "activerecord.errors.models.translation.blank"
         @spanish_locale.translations.first.value.should be_nil
@@ -158,7 +158,7 @@ describe I18n::Backend::Database do
         options = {:attribute=>"Locale", :value=>nil, 
           :scope=>[:activerecord, :errors], :default=>[:"models.translation.blank", :"messages.blank"], :model=>"Translation"}
       
-        @backend.trans("es", :"models.translation.attributes.locale.blank", options).should == "translation locale blank"
+        @backend.translate("es", :"models.translation.attributes.locale.blank", options).should == "translation locale blank"
         @spanish_locale.should have(1).translation
         @spanish_locale.translations.first.key.should == "activerecord.errors.models.translation.attributes.locale.blank"
         @spanish_locale.translations.first.value.should be_nil
@@ -171,7 +171,7 @@ describe I18n::Backend::Database do
         options = {:attribute=>"Locale", :value=>nil, 
           :scope=>[:activerecord, :errors], :default=>[:"models.translation.blank", "This is a custom message!", :"messages.blank"], :model=>"Translation"}
 
-        @backend.trans("es", :"models.translation.attributes.locale.blank", options).should == "This is a custom message!"
+        @backend.translate("es", :"models.translation.attributes.locale.blank", options).should == "This is a custom message!"
         @spanish_locale.should have(1).translation
         @spanish_locale.translations.first.key.should == "This is a custom message!"
         @spanish_locale.translations.first.value.should be_nil

@@ -17,12 +17,9 @@ describe Locale do
   end
 
   it "should be invalid with no code" do
-    Locale.create!(@valid_attributes)
-
+    Locale.create!(:code => "en")
     locale = Locale.new
     locale.should_not be_valid
-    locale.should have(1).error_on(:code)
-    locale.errors_on(:code).should include("can't be blank")
   end
 end
 
