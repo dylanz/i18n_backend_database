@@ -49,4 +49,8 @@ describe "English and Spanish Locales with I18n default locale set to English" d
   it "should return default locale of English" do
     Locale.default_locale.should == @english_locale
   end
+  
+  it "should know that the english_locale is the default" do
+    @english_locale.should be_default_locale
+  end
 end

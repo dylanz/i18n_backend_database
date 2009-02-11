@@ -33,6 +33,10 @@ class Locale < ActiveRecord::Base
   def self.available_locales
     all.map(&:code).map(&:to_sym)
   end
+  
+  def default_locale?
+    self == Locale.default_locale
+  end
 
   def to_param
     self.code
