@@ -52,7 +52,19 @@ def load_from_yml(file_name)
     keys = extract_i18n_keys(translations)
     keys.each do |key|
       value = backend.send(:lookup, code, key)
-      translation = locale.translations.find_or_initialize_by_key(key)
+      
+      pluralization_index = 1
+
+      if key.ends_with?('.one')
+        key.gsub!('.one', '')
+      end
+      
+      if key.ends_with?('.other')
+        key.gsub!('.other', '')
+        pluralization_index = 0
+      end
+      
+      translation = locale.translations.find_or_initialize_by_key_and_pluralization_index(key, pluralization_index)
       translation.value = value
       translation.save!
     end
