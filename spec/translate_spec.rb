@@ -31,6 +31,12 @@ describe I18n::Backend::Database do
         @backend.trans("en", "String").should == "Value"
         @english_locale.should have(1).translation
       end
+
+      it "should be able to handle interpolated values" do
+        options = {:count=>1, :model => ["Cheese"], :scope=>[:activerecord, :errors], :default=>["Locale"]}
+        @english_locale.translations.create!(:key => 'activerecord.errors.messages.blank', :value => '{{count}} errors prohibited this {{model}} from being saved')
+        @backend.trans("en", :"messages.blank", options).should == '1 errors prohibited this Cheese from being saved'
+      end
       
       it "should find lowest level translation" do
         @english_locale.translations.create!(:key => 'activerecord.errors.messages.blank', :value => 'is blank moron!')
@@ -108,6 +114,15 @@ describe I18n::Backend::Database do
         @backend.trans("es", "String").should == "String" 
         @spanish_locale.should have(1).translation
       end
+
+      it "should maybe have another test on interpolation"
+      it "should be able to handle interpolated values" do
+        options = {:count=>1, :model => ["Cheese"], :scope=>[:activerecord, :errors], :default=>["Locale"]}
+        @english_locale.translations.create!(:key => 'activerecord.errors.messages.blank', :value => '{{count}} error prohibited this {{model}} from being saved')
+        @backend.trans("es", :"messages.blank", options).should == '1 error prohibited this Cheese from being saved'
+      end
+
+      it "should have some pluralization tests for both locales"
       
       it "should find lowest level translation" do
         @english_locale.translations.create!(:key => 'activerecord.errors.messages.blank', :value => 'is blank moron!')

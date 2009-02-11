@@ -23,7 +23,7 @@ module I18n
       
       def trans(locale, key, options = {})
         locale = Locale.find_by_code(locale)
-        
+
         # create a composite key if scope provided
         key = "#{options[:scope].join('.')}.#{key}" if options[:scope] && key.is_a?(Symbol)
 puts "key = #{key}"        
@@ -38,7 +38,7 @@ puts "key = #{key}"
           locale.create_translation(key, key) if translation
         end
         
-        # if we have no translation and some defaults ... start looking then up
+        # if we have no translation and some defaults ... start looking them up
         unless translation || options[:default].blank?
           default = options[:default].shift
           return trans(locale.code, default, options.dup)
@@ -47,7 +47,13 @@ puts "key = #{key}"
         # if we still have no blasted translation just go and create one for the current locale!
         translation = locale.create_translation(key, key) unless translation
         
-        return translation.value_or_default
+        # pull out values for interpolation
+        values = options.reject { |name, value| [:scope, :default].include?(name) }
+        
+        value = translation.value_or_default
+        value = interpolate(locale.code, value, values)
+        value = pluralize(locale.code, value, options[:count])
+        value
       end
 
       # handles the lookup and addition of translations to the database
@@ -68,6 +74,8 @@ puts "key = #{key}"
       def translate(locale, key, options = {})
         @locale = locale_in_context(locale)
 
+        puts "options: " + options.inspect
+
         # handle bulk lookups
         return key.map { |k| translate(locale, k, options) } if key.is_a? Array
 
@@ -79,6 +87,7 @@ puts "key = #{key}"
         count, scope, default = options.values_at(:count, *reserved)
         options.delete(:default)
         values = options.reject { |name, value| reserved.include?(name) }
+        puts "values: " + values.inspect
 
         hash_key  = generate_hash_key(key)
         cache_key = build_cache_key(@locale, hash_key)
