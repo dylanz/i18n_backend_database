@@ -37,7 +37,20 @@ describe I18n::Backend::Database do
         @english_locale.translations.create!(:key => 'activerecord.errors.messages.blank', :value => '{{count}} errors prohibited this {{model}} from being saved')
         @backend.translate("en", :"messages.blank", options).should == '1 errors prohibited this Cheese from being saved'
       end
-      
+
+      it "should be able to handle pluralization" do
+        @english_locale.translations.create!(:key => 'activerecord.errors.template.header.one', :value => '1 error prohibited this {{model}} from being saved')
+        @english_locale.translations.create!(:key => 'activerecord.errors.template.header.other', :value => '{{count}} errors prohibited this {{model}} from being saved')
+
+        options = {:count=>1, :model=>"translation", :scope=>[:activerecord, :errors, :template]}
+        @backend.translate("en", :"header", options).should == "1 error prohibited this translation from being saved"
+        @english_locale.should have(2).translations
+
+        options = {:count=>2, :model=>"translation", :scope=>[:activerecord, :errors, :template]}
+        @backend.translate("en", :"header", options).should == "1 errors prohibited this translation from being saved"
+        @english_locale.should have(2).translations
+      end
+
       it "should find lowest level translation" do
         @english_locale.translations.create!(:key => 'activerecord.errors.messages.blank', :value => 'is blank moron!')
       
