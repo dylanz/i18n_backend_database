@@ -30,8 +30,8 @@ class Locale < ActiveRecord::Base
     translation
   end
   
-  def find_translation_or_copy_from_default_locale(key)
-    self.translations.find_by_key(key) || copy_from_default(key)
+  def find_translation_or_copy_from_default_locale(key, pluralization_index)
+    self.translations.find_by_key_and_pluralization_index(key, pluralization_index) || copy_from_default(key, pluralization_index)
   end
   
   def copy_from_default(key, pluralization_index)

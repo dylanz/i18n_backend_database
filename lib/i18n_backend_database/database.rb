@@ -26,13 +26,9 @@ module I18n
 
         # create a composite key if scope provided
         key = "#{options[:scope].join('.')}.#{key}" if options[:scope] && key.is_a?(Symbol)
-puts "key = #{key}"        
-        #translation = locale.find_translation_or_copy_from_default_locale(key)
-
-
         count = (options[:count].nil? || options[:count] == 1) ? 1 : 0
-        translation = locale.translations.find_by_key_and_pluralization_index(key, count)
-        translation = locale.copy_from_default(key, count) unless translation
+        
+        translation = locale.find_translation_or_copy_from_default_locale(key, count)
 
         # if we have no translation and some defaults ... start looking them up
         unless translation || options[:default].blank?
