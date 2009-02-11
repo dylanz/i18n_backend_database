@@ -29,6 +29,10 @@ class Locale < ActiveRecord::Base
     self.connection.commit_db_transaction unless RAILS_ENV['test']
     translation
   end
+  
+  def has_translation?(key)
+    self.translations.exists?(:key => key)
+  end
 
   def self.available_locales
     all.map(&:code).map(&:to_sym)

@@ -53,4 +53,9 @@ describe "English and Spanish Locales with I18n default locale set to English" d
   it "should know that the english_locale is the default" do
     @english_locale.should be_default_locale
   end
+  
+  it "should know if it has a translation record" do
+    translation = @english_locale.create_translation('key', 'Hello World')
+    @english_locale.should have_translation('key')
+  end
 end
