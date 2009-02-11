@@ -42,7 +42,7 @@ describe I18n::Backend::Database do
         @english_locale.translations.create!(:key => 'activerecord.errors.template.header', :value => '1 error prohibited this {{model}} from being saved', :pluralization_index => 1)
         @english_locale.translations.create!(:key => 'activerecord.errors.template.header', :value => '{{count}} errors prohibited this {{model}} from being saved', :pluralization_index => 0)
 
-        optiona = {:sount=>1, :model=>"translation", :scope=>[:activerecord, :errors, :template]}
+        options = {:count=>1, :model=>"translation", :scope=>[:activerecord, :errors, :template]}
         @backend.translate("en", :"header", options).should == "1 error prohibited this translation from being saved"
         @english_locale.should have(2).translations
 
@@ -146,7 +146,7 @@ describe I18n::Backend::Database do
 
         options = {:count=>2, :model=>"translation", :scope=>[:activerecord, :errors, :template]}
         @backend.translate("es", :"header", options).should == "2 errors prohibited this translation from being saved"
-        @spanish_locale.should have(2).translations
+        @spanish_locale.reload.should have(2).translations
       end
 
       
