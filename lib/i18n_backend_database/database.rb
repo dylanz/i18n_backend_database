@@ -27,8 +27,13 @@ module I18n
         # create a composite key if scope provided
         key = "#{options[:scope].join('.')}.#{key}" if options[:scope] && key.is_a?(Symbol)
 puts "key = #{key}"        
-        translation = locale.find_translation_or_copy_from_default_locale(key)
-        
+        #translation = locale.find_translation_or_copy_from_default_locale(key)
+
+
+        count = (options[:count].nil? || options[:count] == 1) ? 1 : 0
+        translation = locale.translations.find_by_key_and_pluralization_index(key, count)
+        translation = locale.copy_from_default(key, count) unless translation
+
         # if we have no translation and some defaults ... start looking them up
         unless translation || options[:default].blank?
           default = options[:default].shift
@@ -36,14 +41,13 @@ puts "key = #{key}"
         end
         
         # if we still have no blasted translation just go and create one for the current locale!
-        translation = locale.create_translation(key, key) unless translation
+        translation = locale.create_translation(key, key, count) unless translation
         
         # pull out values for interpolation
         values = options.reject { |name, value| [:scope, :default].include?(name) }
         
         value = translation.value_or_default
         value = interpolate(locale.code, value, values)
-        value = pluralize(locale.code, value, options[:count])
         value
       end
 

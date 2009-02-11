@@ -18,8 +18,8 @@ class Locale < ActiveRecord::Base
     self.translations.find(:first, :conditions => {:key => key})
   end
 
-  def create_translation(key, value)
-    conditions = {:key => key}
+  def create_translation(key, value, pluralization_index=1)
+    conditions = {:key => key, :pluralization_index => pluralization_index}
 
     # set the key as the value if we're using the default locale
     conditions.merge!({:value => value}) if (self.code == I18n.default_locale.to_s)
@@ -34,12 +34,14 @@ class Locale < ActiveRecord::Base
     self.translations.find_by_key(key) || copy_from_default(key)
   end
   
-  def copy_from_default(key)
-    create_translation(key, key) if !self.default_locale? && Locale.default_locale.has_translation?(key)
+  def copy_from_default(key, pluralization_index)
+    if !self.default_locale? && Locale.default_locale.has_translation?(key, pluralization_index)
+      create_translation(key, key, pluralization_index)
+    end
   end
   
-  def has_translation?(key)
-    self.translations.exists?(:key => key)
+  def has_translation?(key, pluralization_index=1)
+    self.translations.exists?(:key => key, :pluralization_index => pluralization_index)
   end
 
   def self.available_locales
