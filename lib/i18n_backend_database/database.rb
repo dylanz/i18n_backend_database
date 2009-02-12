@@ -54,6 +54,9 @@ module I18n
         # translation = @locale.find_translation_or_copy_from_default_locale(key, count)
         translation =  @locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count)
 
+        # what we are crossing our fingers for is that this will cache the fact that this key has NO db translation
+        @cache_store.write(build_cache_key(@locale, key, count), nil) unless translation
+
         if !translation && !@locale.default_locale?
           default_locale_translation = Locale.default_locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count)
           translation = @locale.create_translation(key, key, count) unless !default_locale_translation
