@@ -147,10 +147,6 @@ module I18n
           "#{locale.code}:#{key}:#{pluralization_index}"
         end
 
-        def generate_hash_key(key)
-          Base64.encode64(Digest::MD5.hexdigest(key))
-        end
-
         def internal_lookup?(key, default)
           key.is_a?(Symbol) && default.is_a?(Array) && default.all? {|a| a.is_a?(Symbol)}
         end

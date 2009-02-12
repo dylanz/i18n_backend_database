@@ -1,6 +1,7 @@
 class Translation < ActiveRecord::Base
   belongs_to :locale
   validates_presence_of :key
+  before_create :generate_hash_key
 
   named_scope :untranslated, :conditions => {:value => nil}
 
@@ -12,4 +13,8 @@ class Translation < ActiveRecord::Base
     self.value || self.default_locale_value
   end
 
+  protected
+    def generate_hash_key
+      self.key = Base64.encode64(Digest::MD5.hexdigest(self.key))
+    end
 end
