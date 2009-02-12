@@ -44,8 +44,11 @@ module I18n
         count = (options[:count].nil? || options[:count] == 1) ? 1 : 0
         cache_key = build_cache_key(@locale, key, count)
 
+        # pull out values for interpolation
+        values = options.reject { |name, value| [:scope, :default].include?(name) }
+
         translation = @cache_store.read(cache_key)
-        return translation if translation
+        return interpolate(@locale.code, translation, values) if translation
 
         translation = @locale.find_translation_or_copy_from_default_locale(key, count)
 
@@ -58,8 +61,6 @@ module I18n
         # if we still have no blasted translation just go and create one for the current locale!
         translation = @locale.create_translation(key, key, count) unless translation
 
-        # pull out values for interpolation
-        values = options.reject { |name, value| [:scope, :default].include?(name) }
 
         value = translation.value_or_default(key)
         @cache_store.write(cache_key, value)
