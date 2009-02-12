@@ -31,12 +31,12 @@ describe I18n::Backend::Database do
       
         @backend.translate("en", :"models.translation.attributes.locale.blank", options).should == "is blank moron!"
         
-        @backend.cache_store.exist?("en:#{Translation.hk("activerecord.errors.messages.models.translation.attributes.locale.blank")}:1").should be_true
-        @backend.cache_store.exist?("en:#{Translation.hk("activerecord.errors.messages.models.translation.blank")}:1").should be_true
+        @backend.cache_store.exist?("en:#{Translation.hk("activerecord.errors.models.translation.attributes.locale.blank")}:1").should be_true
+        @backend.cache_store.exist?("en:#{Translation.hk("activerecord.errors.models.translation.blank")}:1").should be_true
         @backend.cache_store.exist?("en:#{Translation.hk("activerecord.errors.messages.blank")}:1").should be_true
 
-        @backend.cache_store.read("en:#{Translation.hk("activerecord.errors.messages.models.translation.attributes.locale.blank")}:1").should == nil
-        @backend.cache_store.read("en:#{Translation.hk("activerecord.errors.messages.models.translation.blank")}:1").should == nil
+        @backend.cache_store.read("en:#{Translation.hk("activerecord.errors.models.translation.attributes.locale.blank")}:1").should == nil
+        @backend.cache_store.read("en:#{Translation.hk("activerecord.errors.models.translation.blank")}:1").should == nil
         @backend.cache_store.read("en:#{Translation.hk("activerecord.errors.messages.blank")}:1").should == "is blank moron!"
 
 
