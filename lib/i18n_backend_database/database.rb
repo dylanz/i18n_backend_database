@@ -51,7 +51,13 @@ module I18n
         translation = @cache_store.read(cache_key)
         return interpolate(@locale.code, translation, values) if translation
 
-        translation = @locale.find_translation_or_copy_from_default_locale(key, count)
+        # translation = @locale.find_translation_or_copy_from_default_locale(key, count)
+        translation =  @locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count)
+
+        if !translation && !@locale.default_locale?
+          default_locale_translation = Locale.default_locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count)
+          translation = @locale.create_translation(key, key, count) unless !default_locale_translation
+        end
 
         # if we have no translation and some defaults ... start looking them up
         unless original_key.is_a?(String) || translation || options[:default].blank?
