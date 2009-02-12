@@ -5,16 +5,20 @@ class Translation < ActiveRecord::Base
 
   named_scope :untranslated, :conditions => {:value => nil}
 
-  def default_locale_value
-    Locale.default_locale.translations.find_by_key_and_pluralization_index(self.key, self.pluralization_index).value rescue self.key 
+  def default_locale_value(key)
+    Locale.default_locale.translations.find_by_key_and_pluralization_index(self.key, self.pluralization_index).value rescue key
   end
 
-  def value_or_default
-    self.value || self.default_locale_value
+  def value_or_default(key)
+    self.value || self.default_locale_value(key)
+  end
+
+  def self.hk(key)
+    Base64.encode64(Digest::MD5.hexdigest(key))
   end
 
   protected
     def generate_hash_key
-      self.key = Base64.encode64(Digest::MD5.hexdigest(self.key))
+      self.key = Translation.hk(key)
     end
 end

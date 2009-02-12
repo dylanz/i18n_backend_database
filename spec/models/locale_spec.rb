@@ -33,13 +33,13 @@ describe "English and Spanish Locales with I18n default locale set to English" d
 
   it "should create a translated translation using english locale" do
     translation = @english_locale.create_translation('Hello World', 'Hello World')
-    translation.key.should == 'Hello World'
+    translation.key.should == Translation.hk('Hello World')
     translation.value.should == 'Hello World'
   end
 
   it "should create an untranslated translation using spanish locale" do
     translation = @spanish_locale.create_translation('Hello World', 'Hello World')
-    translation.key.should == 'Hello World'
+    translation.key.should == Translation.hk('Hello World')
     translation.value.should be_nil
   end
 

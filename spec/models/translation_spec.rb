@@ -26,7 +26,7 @@ describe "English and Spanish Locales with I18n default locale set to English" d
 
     it "should have return 'No default locale value' for a new Spanish translation with same key" do
       @spanish_translation = @spanish_locale.translations.create(:key => 'Hello World')
-      @spanish_translation.default_locale_value.should == 'Hello World'  
+      @spanish_translation.default_locale_value('Hello World').should == 'Hello World'  
     end
 
   end
@@ -38,12 +38,12 @@ describe "English and Spanish Locales with I18n default locale set to English" d
     end
 
     it "should have a default locale value" do
-      @english_translation.default_locale_value.should == 'Hello World'  
+      @english_translation.default_locale_value('Hello World').should == 'Hello World'  
     end
 
     it "should have a default locale value of the English for a new Spanish translation with same key" do
       @spanish_translation = @spanish_locale.translations.create(:key => 'Hello World')
-      @spanish_translation.default_locale_value.should == 'Hello World'  
+      @spanish_translation.default_locale_value('Hello World').should == 'Hello World'  
     end
 
   end

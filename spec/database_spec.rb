@@ -35,7 +35,7 @@ describe I18n::Backend::Database do
 
     it "should generate a Base64 encoded, MD5 encrypted hash, based on the key" do
       encrypted_key = Digest::MD5.hexdigest("aoeuaoeu")
-      completed_key = @database.send(:generate_hash_key, "aoeuaoeu")
+      completed_key = Translation.hk("aoeuaoeu")
       encrypted_key.should == Base64.decode64(completed_key)
     end
 

@@ -15,7 +15,7 @@ class Locale < ActiveRecord::Base
   end
 
   def translation_from_key(key)
-    self.translations.find(:first, :conditions => {:key => key})
+    self.translations.find(:first, :conditions => {:key => Translation.hk(key)})
   end
 
   def create_translation(key, value, pluralization_index=1)
@@ -31,7 +31,7 @@ class Locale < ActiveRecord::Base
   end
   
   def find_translation_or_copy_from_default_locale(key, pluralization_index)
-    self.translations.find_by_key_and_pluralization_index(key, pluralization_index) || copy_from_default(key, pluralization_index)
+    self.translations.find_by_key_and_pluralization_index(Translation.hk(key), pluralization_index) || copy_from_default(key, pluralization_index)
   end
   
   def copy_from_default(key, pluralization_index)
@@ -41,7 +41,7 @@ class Locale < ActiveRecord::Base
   end
   
   def has_translation?(key, pluralization_index=1)
-    self.translations.exists?(:key => key, :pluralization_index => pluralization_index)
+    self.translations.exists?(:key => Translation.hk(key), :pluralization_index => pluralization_index)
   end
 
   def self.available_locales

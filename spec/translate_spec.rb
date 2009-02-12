@@ -26,7 +26,7 @@ describe I18n::Backend::Database do
       it "should create a record with the key as the value when the key is a string" do
         @backend.translate("en", "String").should == "String"
         @english_locale.should have(1).translation
-        @english_locale.translations.first.key.should == "String"
+        @english_locale.translations.first.key.should == Translation.hk("String")
         @english_locale.translations.first.value.should == "String"
       end
       
@@ -127,7 +127,7 @@ describe I18n::Backend::Database do
       it "should create a record with a nil value when the key is a string" do
         @backend.translate("es", "String")
         @spanish_locale.should have(1).translation
-        @spanish_locale.translations.first.key.should == "String"
+        @spanish_locale.translations.first.key.should == Translation.hk("String")
         @spanish_locale.translations.first.value.should be_nil
       end
       
@@ -173,7 +173,7 @@ describe I18n::Backend::Database do
         @backend.translate("es", :"models.translation.attributes.locale.blank", options).should == "is blank moron!"
         
         @spanish_locale.should have(1).translation
-        @spanish_locale.translations.first.key.should == "activerecord.errors.messages.blank"
+        @spanish_locale.translations.first.key.should == Translation.hk("activerecord.errors.messages.blank")
         @spanish_locale.translations.first.value.should be_nil
       end
 
@@ -186,7 +186,7 @@ describe I18n::Backend::Database do
       
         @backend.translate("es", :"models.translation.attributes.locale.blank", options).should == "translation blank"
         @spanish_locale.should have(1).translation
-        @spanish_locale.translations.first.key.should == "activerecord.errors.models.translation.blank"
+        @spanish_locale.translations.first.key.should == Translation.hk("activerecord.errors.models.translation.blank")
         @spanish_locale.translations.first.value.should be_nil
         @backend.cache_store.read("es:activerecord.errors.models.translation.blank:1", "translation blank")
       end
@@ -201,7 +201,7 @@ describe I18n::Backend::Database do
       
         @backend.translate("es", :"models.translation.attributes.locale.blank", options).should == "translation locale blank"
         @spanish_locale.should have(1).translation
-        @spanish_locale.translations.first.key.should == "activerecord.errors.models.translation.attributes.locale.blank"
+        @spanish_locale.translations.first.key.should == Translation.hk("activerecord.errors.models.translation.attributes.locale.blank")
         @spanish_locale.translations.first.value.should be_nil
       end
 
@@ -214,7 +214,7 @@ describe I18n::Backend::Database do
 
         @backend.translate("es", :"models.translation.attributes.locale.blank", options).should == "This is a custom message!"
         @spanish_locale.should have(1).translation
-        @spanish_locale.translations.first.key.should == "This is a custom message!"
+        @spanish_locale.translations.first.key.should == Translation.hk("This is a custom message!")
         @spanish_locale.translations.first.value.should be_nil
       end
       

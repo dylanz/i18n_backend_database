@@ -46,7 +46,7 @@ module I18n
         # pull out values for interpolation
         values = options.reject { |name, value| [:scope, :default].include?(name) }
 
-        value = translation.value_or_default
+        value = translation.value_or_default(key)
         @cache_store.write(cache_key, value)
 
         value = interpolate(@locale.code, value, values)
