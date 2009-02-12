@@ -48,11 +48,10 @@ module I18n
         return translation if translation
 
         translation = @locale.find_translation_or_copy_from_default_locale(key, count)
-        puts "options: " + options.inspect
 
         # if we have no translation and some defaults ... start looking them up
         unless translation || options[:default].blank?
-          default = options[:default].shift
+          default = options[:default].is_a?(Array) ? options[:default].shift : options.delete(:default)
           return translate(@locale.code, default, options.dup)
         end
 

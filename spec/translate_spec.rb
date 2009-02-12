@@ -48,6 +48,12 @@ describe I18n::Backend::Database do
         @backend.cache_store.read("en:#{hash_key}:1").should == "blah"
       end
 
+      it "should handle active record helper defaults, where default is the object name" do
+        options = {:count=>1, :scope=>[:activerecord, :models], :default=>"post"}
+        @english_locale.translations.create!(:key => 'activerecord.errors.models.blank', :value => 'post')
+        @backend.translate("en", :"models.blank", options).should == 'post'
+      end
+
       it "should be able to handle interpolated values" do
         options = {:count=>1, :model => ["Cheese"], :scope=>[:activerecord, :errors], :default=>["Locale"]}
         @english_locale.translations.create!(:key => 'activerecord.errors.messages.blank', :value => '{{count}} errors prohibited this {{model}} from being saved')
