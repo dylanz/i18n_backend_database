@@ -20,30 +20,30 @@ module I18n
       def cache_store=(store)
         @cache_store = ActiveSupport::Cache.lookup_store(store)
       end
-      
+
       def translate(locale, key, options = {})
-        locale = Locale.find_by_code(locale.to_s)
+        @locale = locale_in_context(locale)
 
         # create a composite key if scope provided
         key = "#{options[:scope].join('.')}.#{key}" if options[:scope] && key.is_a?(Symbol)
         count = (options[:count].nil? || options[:count] == 1) ? 1 : 0
-        
-        translation = locale.find_translation_or_copy_from_default_locale(key, count)
+
+        translation = @locale.find_translation_or_copy_from_default_locale(key, count)
 
         # if we have no translation and some defaults ... start looking them up
         unless translation || options[:default].blank?
           default = options[:default].shift
-          return translate(locale.code, default, options.dup)
+          return translate(@locale.code, default, options.dup)
         end
-        
+
         # if we still have no blasted translation just go and create one for the current locale!
-        translation = locale.create_translation(key, key, count) unless translation
-        
+        translation = @locale.create_translation(key, key, count) unless translation
+
         # pull out values for interpolation
         values = options.reject { |name, value| [:scope, :default].include?(name) }
-        
+
         value = translation.value_or_default
-        value = interpolate(locale.code, value, values)
+        value = interpolate(@locale.code, value, values)
         value
       end
 
@@ -128,24 +128,12 @@ module I18n
       protected
         # keep a local copy of the locale in context for use within the translation
         # routine, and also accept an arbitrary locale for one time locale lookups
-        def locale_in_context(tmp_locale=nil)
-          if @locale && tmp_locale
-            # the passed locale is different than the cache
-            unless @locale.code == tmp_locale.to_s
-              Locale.find_by_code(tmp_locale.to_s)
-            else
-              @locale
-            end
-          elsif @locale
-            # synch cache with I18n.locale
-            unless @locale.code == I18n.locale.to_s
-              Locale.find_by_code(I18n.locale.to_s)
-            else
-              @locale
-            end
-          else
-            Locale.find_by_code(I18n.locale.to_s)
-          end
+        def locale_in_context(locale)
+          return @locale if @locale && @locale.code == locale.to_s
+          #Locale.find_by_code(locale.to_s) rescue nil && (raise InvalidLocale.new(locale))
+          locale = Locale.find_by_code(locale.to_s)
+          raise InvalidLocale.new(locale) unless locale
+          locale
         end
 
         # locale:"key"

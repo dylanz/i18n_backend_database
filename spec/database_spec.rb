@@ -139,7 +139,7 @@ describe I18n::Backend::Database do
 
       it "should return a locale record for the current locale in context" do
         Locale.should_receive(:find_by_code).with(I18n.locale)
-        @database.send(:locale_in_context)
+        @database.send(:locale_in_context, I18n.locale)
       end
     end
 
@@ -177,7 +177,7 @@ describe I18n::Backend::Database do
 
       it "should update the locale cache with the new locale" do
         @database.locale = "es"
-        @database.send(:locale_in_context).should == @database.locale
+        @database.send(:locale_in_context, "es").should == @database.locale
       end
     end
 
@@ -190,7 +190,7 @@ describe I18n::Backend::Database do
       it "should update the locale cache with the new locale" do
         @database.locale = "es"
         Locale.should_receive(:find_by_code).with("it")
-        @database.send(:locale_in_context)
+        @database.send(:locale_in_context, "it")
       end
     end
   end
