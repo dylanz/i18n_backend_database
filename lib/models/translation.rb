@@ -5,8 +5,8 @@ class Translation < ActiveRecord::Base
 
   named_scope :untranslated, :conditions => {:value => nil}
 
-  def default_locale_value(key)
-    Locale.default_locale.translations.find_by_key_and_pluralization_index(self.key, self.pluralization_index).value rescue key
+  def default_locale_value(rescue_value='No default locale value')
+    Locale.default_locale.translations.find_by_key_and_pluralization_index(self.key, self.pluralization_index).value rescue rescue_value
   end
 
   def value_or_default(key)
