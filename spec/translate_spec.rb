@@ -5,7 +5,11 @@ describe I18n::Backend::Database do
   before(:each) do
     @backend = I18n::Backend::Database.new
   end
-  
+
+  after(:each) do
+    @backend.cache_store.clear
+  end
+
   describe "with default locale en" do
     
     before(:each) do
@@ -30,6 +34,16 @@ describe I18n::Backend::Database do
         @english_locale.translations.create!(:key => 'String', :value => 'Value')
         @backend.translate("en", "String").should == "Value"
         @english_locale.should have(1).translation
+      end
+
+      it "should find a cached record from a cache key if it exists in the cache" do
+        @backend.cache_store.write('en:blah:1', 'woot')
+        @backend.translate("en", "blah").should == "woot"
+      end
+
+      it "should write a cache record to the cache for a newly created translation record" do
+        @backend.translate("en", "blah")
+        @backend.cache_store.read("en:blah:1").should == "blah"
       end
 
       it "should be able to handle interpolated values" do
@@ -174,6 +188,7 @@ describe I18n::Backend::Database do
         @spanish_locale.should have(1).translation
         @spanish_locale.translations.first.key.should == "activerecord.errors.models.translation.blank"
         @spanish_locale.translations.first.value.should be_nil
+        @backend.cache_store.read("es:activerecord.errors.models.translation.blank:1", "translation blank")
       end
 
       it "should find highest level translation" do
