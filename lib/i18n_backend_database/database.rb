@@ -40,6 +40,7 @@ module I18n
         @locale = locale_in_context(locale)
 
         # create a composite key if scope provided
+        original_key = key
         key = "#{options[:scope].join('.')}.#{key}" if options[:scope] && key.is_a?(Symbol)
         count = (options[:count].nil? || options[:count] == 1) ? 1 : 0
         cache_key = build_cache_key(@locale, key, count)
@@ -53,7 +54,7 @@ module I18n
         translation = @locale.find_translation_or_copy_from_default_locale(key, count)
 
         # if we have no translation and some defaults ... start looking them up
-        unless translation || options[:default].blank?
+        unless original_key.is_a?(String) || translation || options[:default].blank?
           default = options[:default].is_a?(Array) ? options[:default].shift : options.delete(:default)
           return translate(@locale.code, default, options.dup)
         end

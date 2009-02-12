@@ -103,6 +103,18 @@ describe I18n::Backend::Database do
         @backend.translate("en", :"models.translation.attributes.locale.blank", options).should == "translation locale blank"
       end
       
+      it "should create the translation for custom message" do
+        @english_locale.translations.create!(:key => 'activerecord.errors.messages.blank', :value => 'is blank moron!')
+
+        options = {:attribute=>"Locale", :value=>nil, 
+          :scope=>[:activerecord, :errors], :default=>[:"models.translation.blank", "This is a custom message!", :"messages.blank"], :model=>"Translation"}
+
+        @backend.translate("en", :"models.translation.attributes.locale.blank", options).should == "This is a custom message!"
+        @english_locale.should have(2).translations
+        @english_locale.translations.find_by_key(Translation.hk("This is a custom message!")).value.should == 'This is a custom message!'
+        
+      end
+
       it "should find the translation for custom message" do
         @english_locale.translations.create!(:key => 'activerecord.errors.messages.blank', :value => 'is blank moron!')
         @english_locale.translations.create!(:key => 'This is a custom message!', :value => 'This is a custom message!')
