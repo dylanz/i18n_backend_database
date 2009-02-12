@@ -21,6 +21,21 @@ module I18n
         @cache_store = ActiveSupport::Cache.lookup_store(store)
       end
 
+      # handles the lookup and addition of translations to the database
+      #
+      # on an initial translation, the locale is checked to determine if
+      # this is the default locale.  if it is, we'll create a complete
+      # transaction record for this locale with both the key and value.
+      #
+      # if the current locale is checked, and it differs from the default
+      # locale, we'll create a transaction record with a nil value.  this
+      # allows for the lookup of untranslated records in a given locale.
+      #
+      # on hits, we simply return the stored value.
+      # Rails.cache -> Database -> I18n.load_path
+      #
+      # on misses, we update the cache and database, and return the key:
+      # Rails.cache -> Database -> I18n.load_path -> Database -> Rails.cache
       def translate(locale, key, options = {})
         @locale = locale_in_context(locale)
 
@@ -33,6 +48,7 @@ module I18n
         return translation if translation
 
         translation = @locale.find_translation_or_copy_from_default_locale(key, count)
+        puts "options: " + options.inspect
 
         # if we have no translation and some defaults ... start looking them up
         unless translation || options[:default].blank?
@@ -51,75 +67,6 @@ module I18n
 
         value = interpolate(@locale.code, value, values)
         value
-      end
-
-      # handles the lookup and addition of translations to the database
-      #
-      # on an initial translation, the locale is checked to determine if
-      # this is the default locale.  if it is, we'll create a complete
-      # transaction record for this locale with both the key and value.
-      #
-      # if the current locale is checked, and it differs from the default
-      # locale, we'll create a transaction record with a nil value.  this
-      # allows for the lookup of untranslated records in a given locale.
-      #
-      # on hits, we simply return the stored value.
-      # Rails.cache -> Database -> I18n.load_path
-      #
-      # on misses, we update the cache and database, and return the key:
-      # Rails.cache -> Database -> I18n.load_path -> Database -> Rails.cache
-      def translate_deprecated(locale, key, options = {})
-        @locale = locale_in_context(locale)
-
-        puts "options: " + options.inspect
-
-        # handle bulk lookups
-        return key.map { |k| translate(locale, k, options) } if key.is_a? Array
-
-        original_key = key
-        key = "#{options[:scope].join('.')}.#{key}" if options[:scope]
-
-        # pull out hash lookup options
-        reserved = :scope, :default
-        count, scope, default = options.values_at(:count, *reserved)
-        options.delete(:default)
-        values = options.reject { |name, value| reserved.include?(name) }
-        puts "values: " + values.inspect
-
-        hash_key  = generate_hash_key(key)
-        cache_key = build_cache_key(@locale, hash_key)
-
-        if internal_lookup?(original_key, default)
-          value = lookup(locale, original_key, scope)
-          value = value[:other] if value.is_a?(Hash)
-          value = default(locale, default, options) if value.nil?
-          return value
-        else
-          # check cache for key and return value if it exists
-          value = @cache_store.read(cache_key)
-          return interpolate(locale, pluralize(locale, value, count), values) if value
-
-          # check database for key and return value if it exists
-          translation = @locale.translation_from_key(hash_key)
-          return interpolate(locale, pluralize(locale, translation.value, count), values) if translation
-
-          value = lookup(locale, original_key, scope)
-          value = value[:other] if value.is_a?(Hash)
-          value = default(locale, default, options) if value.nil?
-        end
-
-        if scope && value.nil?
-          # throw to escape from recursive default lookup
-          raise I18n::MissingTranslationData.new(locale, key, options)
-        end
-
-        # create the database and cache records
-        value = @locale.create_translation(hash_key, (value || key)).value
-        @cache_store.write(cache_key, value, :raw => true)
-
-        value = pluralize(locale, value, count)
-        value = interpolate(locale, value, values)
-        value || key
       end
 
       def available_locales
@@ -142,9 +89,9 @@ module I18n
           locale
         end
 
-        # locale:"key"
+        # locale:"key":pluralization_index
         def build_cache_key(locale, key, pluralization_index)
-          "#{locale.code}:#{key}:#{pluralization_index}"
+          "#{locale.code}:#{Translation.hk(key)}:#{pluralization_index}"
         end
 
         def internal_lookup?(key, default)

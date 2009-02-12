@@ -37,13 +37,15 @@ describe I18n::Backend::Database do
       end
 
       it "should find a cached record from a cache key if it exists in the cache" do
-        @backend.cache_store.write('en:blah:1', 'woot')
+        hash_key = Translation.hk("blah")
+        @backend.cache_store.write("en:#{hash_key}:1", 'woot')
         @backend.translate("en", "blah").should == "woot"
       end
 
       it "should write a cache record to the cache for a newly created translation record" do
+        hash_key = Translation.hk("blah")
         @backend.translate("en", "blah")
-        @backend.cache_store.read("en:blah:1").should == "blah"
+        @backend.cache_store.read("en:#{hash_key}:1").should == "blah"
       end
 
       it "should be able to handle interpolated values" do
