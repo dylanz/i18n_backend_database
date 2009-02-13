@@ -24,6 +24,6 @@ class Translation < ActiveRecord::Base
     end
     
     def update_cache
-      I18n.backend.cache_store.write( "#{self.locale.code}:#{self.key}:#{self.pluralization_index}", self.value)
+      I18n.backend.cache_store.write("#{self.locale.code}:#{self.key}:#{self.pluralization_index}", self.value)
     end
 end
