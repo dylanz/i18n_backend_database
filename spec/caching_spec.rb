@@ -4,6 +4,7 @@ describe I18n::Backend::Database do
   
   before(:each) do
     @backend = I18n::Backend::Database.new
+    I18n.backend = @backend
   end
 
   after(:each) do
@@ -38,6 +39,20 @@ describe I18n::Backend::Database do
         @backend.cache_store.read("en:#{Translation.hk("activerecord.errors.models.translation.attributes.locale.blank")}:1").should == nil
         @backend.cache_store.read("en:#{Translation.hk("activerecord.errors.models.translation.blank")}:1").should == nil
         @backend.cache_store.read("en:#{Translation.hk("activerecord.errors.messages.blank")}:1").should == "is blank moron!"
+      end
+
+
+      it "should update a cache record if the translation record changes" do
+        hash_key = Translation.hk("blah")
+        @backend.translate("en", "blah")
+        @backend.cache_store.read("en:#{hash_key}:1").should == "blah"
+
+        translation = @english_locale.translations.find_by_key(Translation.hk("blah")) 
+        translation.value.should == "blah"
+
+        translation.update_attribute(:value, "foo")
+        translation.value.should == "foo"
+        @backend.cache_store.read("en:#{hash_key}:1").should == "foo"
       end
 
       

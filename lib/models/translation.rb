@@ -2,6 +2,7 @@ class Translation < ActiveRecord::Base
   belongs_to :locale
   validates_presence_of :key
   before_create :generate_hash_key
+  after_update  :update_cache
 
   named_scope :untranslated, :conditions => {:value => nil}
 
@@ -20,5 +21,9 @@ class Translation < ActiveRecord::Base
   protected
     def generate_hash_key
       self.key = Translation.hk(key)
+    end
+    
+    def update_cache
+      I18n.backend.cache_store.write( "#{self.locale.code}:#{self.key}:#{self.pluralization_index}", self.value)
     end
 end

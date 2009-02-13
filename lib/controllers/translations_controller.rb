@@ -77,8 +77,10 @@ class TranslationsController < ActionController::Base
 
     respond_to do |format|
       if @translation.update_attributes(params[:translation])
-        flash[:notice] = 'Translation was successfully updated.'
-        format.html { redirect_to locale_translation_path(@locale, @translation) }
+        format.html do 
+          flash[:notice] = 'Translation was successfully updated.'
+          redirect_to locale_translation_path(@locale, @translation) 
+        end
         format.xml  { head :ok }
         format.js   {}
       else
