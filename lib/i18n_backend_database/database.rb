@@ -3,12 +3,14 @@ require 'base64'
 
 module I18n
   module Backend
-    class Database < I18n::Backend::Simple
+    class Database
+      INTERPOLATION_RESERVED_KEYS = %w(scope default)
+      MATCH = /(\\\\)?\{\{([^\}]+)\}\}/
+
       attr_accessor :locale
       attr_accessor :cache_store
 
       def initialize(options = {})
-        init_translations
         store   = options.delete(:cache_store)
         @cache_store = store ? ActiveSupport::Cache.lookup_store(store) : Rails.cache
       end
@@ -113,17 +115,40 @@ module I18n
           "#{locale.code}:#{Translation.hk(key)}:#{pluralization_index}"
         end
 
-        def internal_lookup?(key, default)
-          key.is_a?(Symbol) && default.is_a?(Array) && default.all? {|a| a.is_a?(Symbol)}
+        # Interpolates values into a given string.
+        # 
+        #   interpolate "file {{file}} opened by \\{{user}}", :file => 'test.txt', :user => 'Mr. X'  
+        #   # => "file test.txt opened by {{user}}"
+        # 
+        # Note that you have to double escape the <tt>\\</tt> when you want to escape
+        # the <tt>{{...}}</tt> key in a string (once for the string and once for the
+        # interpolation).
+        def interpolate(locale, string, values = {})
+          return string unless string.is_a?(String)
+
+          if string.respond_to?(:force_encoding)
+            original_encoding = string.encoding
+            string.force_encoding(Encoding::BINARY)
+          end
+
+          result = string.gsub(MATCH) do
+            escaped, pattern, key = $1, $2, $2.to_sym
+
+            if escaped
+              pattern
+            elsif INTERPOLATION_RESERVED_KEYS.include?(pattern)
+              raise ReservedInterpolationKey.new(pattern, string)
+            elsif !values.include?(key)
+              raise MissingInterpolationArgument.new(pattern, string)
+            else
+              values[key].to_s
+            end
+          end
+
+          result.force_encoding(original_encoding) if original_encoding
+          result
         end
 
-        # check default i18n load paths and return value if it exists
-        def value_from_lookup(args = {})
-          value = lookup(args[:locale], args[:original_key], args[:scope])
-          value = value[:other] if value.is_a?(Hash)
-          value = default(args[:locale], args[:default], args[:options]) if value.nil?
-          return value
-        end
     end
   end
 end
