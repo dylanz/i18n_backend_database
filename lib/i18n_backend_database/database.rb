@@ -37,6 +37,7 @@ module I18n
 
         # create a composite key if scope provided
         original_key = key
+        options[:scope] = [options[:scope]] unless options[:scope].is_a?(Array)
         key = "#{options[:scope].join('.')}.#{key}" if options[:scope] && key.is_a?(Symbol)
         count = (options[:count].nil? || options[:count] == 1) ? 1 : 0
         cache_key = Translation.ck(@locale, key, count)
