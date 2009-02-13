@@ -11,7 +11,7 @@ module I18n
       attr_accessor :cache_store
 
       def initialize(options = {})
-        store   = options.delete(:cache_store)
+        store = options.delete(:cache_store)
         @cache_store = store ? ActiveSupport::Cache.lookup_store(store) : Rails.cache
       end
 
@@ -23,21 +23,15 @@ module I18n
         @cache_store = ActiveSupport::Cache.lookup_store(store)
       end
 
-      # handles the lookup and addition of translations to the database
+      # Handles the lookup and addition of translations to the database
       #
-      # on an initial translation, the locale is checked to determine if
-      # this is the default locale.  if it is, we'll create a complete
-      # transaction record for this locale with both the key and value.
+      # On an initial translation, the locale is checked to determine if
+      # this is the default locale.  If it is, we'll create a complete
+      # translation record for this locale with both the key and value.
       #
-      # if the current locale is checked, and it differs from the default
-      # locale, we'll create a transaction record with a nil value.  this
+      # If the current locale is checked, and it differs from the default
+      # locale, we'll create a translation record with a nil value.  This
       # allows for the lookup of untranslated records in a given locale.
-      #
-      # on hits, we simply return the stored value.
-      # Rails.cache -> Database -> I18n.load_path
-      #
-      # on misses, we update the cache and database, and return the key:
-      # Rails.cache -> Database -> I18n.load_path -> Database -> Rails.cache
       def translate(locale, key, options = {})
         @locale = locale_in_context(locale)
 
@@ -45,7 +39,7 @@ module I18n
         original_key = key
         key = "#{options[:scope].join('.')}.#{key}" if options[:scope] && key.is_a?(Symbol)
         count = (options[:count].nil? || options[:count] == 1) ? 1 : 0
-        cache_key = build_cache_key(@locale, key, count)
+        cache_key = Translation.ck(@locale, key, count)
 
         # pull out values for interpolation
         values = options.reject { |name, value| [:scope, :default].include?(name) }
@@ -56,12 +50,11 @@ module I18n
         else
           translation =  @locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count)
           # what we are crossing our fingers for is that this will cache the fact that this key has NO db translation
-          @cache_store.write(build_cache_key(@locale, key, count), nil) unless translation
+          @cache_store.write(Translation.ck(@locale, key, count), nil) unless translation
         end
 
-
         if !translation && !@locale.default_locale?
-          default_locale_cache_key = build_cache_key(Locale.default_locale, key, count)
+          default_locale_cache_key = Translation.ck(Locale.default_locale, key, count)
 
           if @cache_store.exist?(default_locale_cache_key)
             default_locale_translation = @cache_store.read(default_locale_cache_key)
@@ -108,11 +101,6 @@ module I18n
           locale = Locale.find_by_code(locale.to_s)
           raise InvalidLocale.new(locale) unless locale
           locale
-        end
-
-        # locale:"key":pluralization_index
-        def build_cache_key(locale, key, pluralization_index)
-          "#{locale.code}:#{Translation.hk(key)}:#{pluralization_index}"
         end
 
         # Interpolates values into a given string.

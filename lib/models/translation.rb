@@ -7,23 +7,35 @@ class Translation < ActiveRecord::Base
   named_scope :untranslated, :conditions => {:value => nil}
 
   def default_locale_value(rescue_value='No default locale value')
-    Locale.default_locale.translations.find_by_key_and_pluralization_index(self.key, self.pluralization_index).value rescue rescue_value
+    begin
+      Locale.default_locale.translations.find_by_key_and_pluralization_index(self.key, self.pluralization_index).value
+    rescue
+      rescue_value
+    end
   end
 
   def value_or_default(key)
     self.value || self.default_locale_value(key)
   end
 
+  # create hash key
   def self.hk(key)
     Base64.encode64(Digest::MD5.hexdigest(key))
+  end
+
+  # create cache key
+  def self.ck(locale, key, pluralization_index, hash=true)
+    key = self.hk(key) if hash
+    "#{locale.code}:#{key}:#{pluralization_index}"
   end
 
   protected
     def generate_hash_key
       self.key = Translation.hk(key)
     end
-    
+
     def update_cache
-      I18n.backend.cache_store.write("#{self.locale.code}:#{self.key}:#{self.pluralization_index}", self.value)
+      new_cache_key = Translation.ck(self.locale, self.key, self.pluralization_index, false)
+      I18n.backend.cache_store.write(new_cache_key, self.value)
     end
 end

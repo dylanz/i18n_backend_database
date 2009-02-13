@@ -31,7 +31,7 @@ describe I18n::Backend::Database do
 
     it "should return a cache key of locale:key on call to build_cache_key" do
       hash_key = Translation.hk("hola me amigo!")
-      @database.send(:build_cache_key, @locale, "hola me amigo!", 1).should == "es:#{hash_key}:1"
+      Translation.ck(@locale, "hola me amigo!", 1).should == "es:#{hash_key}:1"
     end
 
     it "should generate a Base64 encoded, MD5 encrypted hash, based on the key" do
@@ -115,14 +115,6 @@ describe I18n::Backend::Database do
       it "should set the value of the translation to nil" do
         Translation.first.value.should == nil
       end
-    end
-
-    describe "for the subsequent call in the default locale" do
-      it "should have specs outlining the results of all the translation possibilities"
-    end
-
-    describe "for the subsequent call in the alternate locale" do
-      it "should have specs outlining the results of all the translation possibilities"
     end
   end
 

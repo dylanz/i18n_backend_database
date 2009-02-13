@@ -13,5 +13,4 @@ Spec::Runner.configure do |config|
     I18n.default_locale = "en"
     I18n.backend.cache_store.clear
   end
-
 end
