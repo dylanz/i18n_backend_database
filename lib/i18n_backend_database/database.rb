@@ -59,8 +59,17 @@ module I18n
 
 
         if !translation && !@locale.default_locale?
-          default_locale_translation = Locale.default_locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count)
-          translation = @locale.create_translation(key, key, count) unless !default_locale_translation
+
+          default_locale_cache_key = build_cache_key(Locale.default_locale, key, count)
+
+          if @cache_store.exist?(default_locale_cache_key)
+            default_locale_translation = @cache_store.read(default_locale_cache_key)
+          else
+            default_locale_translation = Locale.default_locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count)
+            @cache_store.write(default_locale_cache_key, (default_locale_translation.nil? ? nil : default_locale_translation.value))
+          end
+          
+          translation = @locale.create_translation(key, key, count) if default_locale_translation
         end
 
         # if we have no translation and some defaults ... start looking them up
