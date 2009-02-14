@@ -57,6 +57,12 @@ describe I18n::Backend::Database do
         @backend.translate("en", :"messages.blank", options).should == '1 errors prohibited this Cheese from being saved'
       end
 
+      it "should be able to handle the case of scope being passed in as something other than an array" do
+        options = {:count=>1, :model => ["Cheese"], :scope=> :activerecord, :default=>["Locale"]}
+        @english_locale.translations.create!(:key => 'activerecord.messages.blank', :value => 'dude')
+        @backend.translate("en", :"messages.blank", options).should == 'dude'
+      end
+
       it "should be able to handle pluralization" do
         @english_locale.translations.create!(:key => 'activerecord.errors.template.header', :value => '1 error prohibited this {{model}} from being saved', :pluralization_index => 1)
         @english_locale.translations.create!(:key => 'activerecord.errors.template.header', :value => '{{count}} errors prohibited this {{model}} from being saved', :pluralization_index => 0)
