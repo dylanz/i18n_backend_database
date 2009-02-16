@@ -32,7 +32,8 @@ def load_from_yml(file_name)
         pluralization_index = 0
       end
 
-      translation = locale.translations.find_or_initialize_by_key_and_pluralization_index(key, pluralization_index)
+      translation = locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), pluralization_index) # find existing record by hash key
+      translation = locale.translations.build(:key =>key, :pluralization_index => pluralization_index) unless translation # or build new one with raw key
       translation.value = value
       translation.save!
     end
