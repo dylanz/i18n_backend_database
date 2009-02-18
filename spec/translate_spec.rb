@@ -57,6 +57,12 @@ describe I18n::Backend::Database do
         @backend.translate("en", 'Fred', options).should == 'Fred has been INTERPOLATED!!'
       end
 
+      it "should be able to handle interpolated values with 'Fred {{some_value}}' also as the key" do
+        options = {:some_value => 'INTERPOLATED'}
+        @english_locale.translations.create!(:key => 'Fred {{some_value}}', :value => 'Fred {{some_value}}!!')
+        @backend.translate("en", 'Fred {{some_value}}', options).should == 'Fred INTERPOLATED!!'
+      end
+
       it "should be able to handle interpolated count values" do
         options = {:count=>1, :model => ["Cheese"], :scope=>[:activerecord, :errors], :default=>["Locale"]}
         @english_locale.translations.create!(:key => 'activerecord.errors.messages.blank', :value => '{{count}} errors prohibited this {{model}} from being saved')
