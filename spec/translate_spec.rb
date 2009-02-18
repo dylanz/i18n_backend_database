@@ -52,6 +52,12 @@ describe I18n::Backend::Database do
       end
 
       it "should be able to handle interpolated values" do
+        options = {:some_value => 'INTERPOLATED'}
+        @english_locale.translations.create!(:key => 'Fred', :value => 'Fred has been {{some_value}}!!')
+        @backend.translate("en", 'Fred', options).should == 'Fred has been INTERPOLATED!!'
+      end
+
+      it "should be able to handle interpolated count values" do
         options = {:count=>1, :model => ["Cheese"], :scope=>[:activerecord, :errors], :default=>["Locale"]}
         @english_locale.translations.create!(:key => 'activerecord.errors.messages.blank', :value => '{{count}} errors prohibited this {{model}} from being saved')
         @backend.translate("en", :"messages.blank", options).should == '1 errors prohibited this Cheese from being saved'
@@ -164,6 +170,13 @@ describe I18n::Backend::Database do
       end
 
       it "should be able to handle interpolated values" do
+        options = {:some_value => 'INTERPOLATED'}
+        @english_locale.translations.create!(:key => 'Fred', :value => 'Fred has been {{some_value}}!!')
+        @spanish_locale.translations.create!(:key => 'Fred', :value => 'Fred ha sido {{some_value}}!!')
+        @backend.translate("es", 'Fred', options).should == 'Fred ha sido INTERPOLATED!!'
+      end
+
+      it "should be able to handle interpolated count values" do
         options = {:count=>1, :model => ["Cheese"], :scope=>[:activerecord, :errors], :default=>["Locale"]}
         @english_locale.translations.create!(:key => 'activerecord.errors.messages.blank', :value => '{{count}} error prohibited this {{model}} from being saved')
         @backend.translate("es", :"messages.blank", options).should == '1 error prohibited this Cheese from being saved'
