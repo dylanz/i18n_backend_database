@@ -6,6 +6,31 @@
 </p>
 
 <h1>Untranslated: <%= @locale.code %></h1>
+  <script type="text/javascript">
+      if (!JS_BRAMUS) { var JS_BRAMUS = new Object(); }
+        JS_BRAMUS.jsProgressBarAjaxHandler = Class.create();
+        JS_BRAMUS.jsProgressBarAjaxHandler.prototype = {
+        percent    : 0,
+        initialize : function() {
+          // Register Ajax Responders
+            Ajax.Responders.register({
+              onCreate: function() {
+                this.percent;
+              }.bind(this),
+              onComplete: function() {
+                myJsProgressBarHandler.setPercentage('translate_progress',
+                  parseInt(<%= (@total_count - @translations.size).to_f / @total_count.to_f * 100 %>)
+                );
+              }.bind(this)
+            });
+        }
+      }
+      function initProgressBarAjaxHandler() { myJsProgressBarAjaxHandler = new JS_BRAMUS.jsProgressBarAjaxHandler(); }
+      Event.observe(window, 'load', initProgressBarAjaxHandler, false);
+  </script>
+
+<span class="progressBar" id="translate_progress"><%= @percent %>%</span>
+
 
 <% for translation in @translations %>
   <div id="<%= "translation_#{translation.class}_#{translation.id}" %>">
