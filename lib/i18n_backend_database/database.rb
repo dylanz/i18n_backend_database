@@ -93,6 +93,10 @@ module I18n
         # let's not do anything yet
       end
 
+      def translate_asset(locale, asset)
+        return asset
+      end
+
       protected
         # keep a local copy of the locale in context for use within the translation
         # routine, and also accept an arbitrary locale for one time locale lookups

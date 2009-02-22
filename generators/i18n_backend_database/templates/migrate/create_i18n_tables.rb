@@ -13,10 +13,12 @@ class CreateI18nTables < ActiveRecord::Migration
       t.integer  :locale_id
     end
     add_index :translations, [:locale_id, :key]
+
   end
 
   def self.down
     drop_table :locales
     drop_table :translations
+    drop_table :asset_translations
   end
 end
