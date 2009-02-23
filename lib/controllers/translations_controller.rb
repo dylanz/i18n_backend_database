@@ -20,9 +20,6 @@ class TranslationsController < ActionController::Base
     @locale ||= Locale.default_locale
     @translations = @locale.translations.untranslated
 
-    @total_count = @locale.translations.count
-    @percent = (@total_count - @translations.size).to_f / @total_count.to_f * 100
-
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @translations }
@@ -77,7 +74,6 @@ class TranslationsController < ActionController::Base
   # PUT /translations/1.xml
   def update
     @translation  = @locale.translations.find(params[:id])
-    @translations = @locale.translations.untranslated
 
     respond_to do |format|
       if @translation.update_attributes(params[:translation])

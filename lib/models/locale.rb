@@ -29,25 +29,31 @@ class Locale < ActiveRecord::Base
     self.connection.commit_db_transaction unless RAILS_ENV['test']
     translation
   end
-  
+
   def find_translation_or_copy_from_default_locale(key, pluralization_index)
     self.translations.find_by_key_and_pluralization_index(Translation.hk(key), pluralization_index) || copy_from_default(key, pluralization_index)
   end
-  
+
   def copy_from_default(key, pluralization_index)
     if !self.default_locale? && Locale.default_locale.has_translation?(key, pluralization_index)
       create_translation(key, key, pluralization_index)
     end
   end
-  
+
   def has_translation?(key, pluralization_index=1)
     self.translations.exists?(:key => Translation.hk(key), :pluralization_index => pluralization_index)
+  end
+
+  def percentage_translated
+    total_count = self.translations.count
+    untranslated_count = self.translations.untranslated.count
+    (total_count - untranslated_count).to_f / total_count.to_f * 100
   end
 
   def self.available_locales
     all.map(&:code).map(&:to_sym)
   end
-  
+
   def default_locale?
     self == Locale.default_locale
   end
