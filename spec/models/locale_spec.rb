@@ -56,3 +56,32 @@ describe "English and Spanish Locales with I18n default locale set to English" d
     @english_locale.should have_translation('key')
   end
 end
+
+describe "Locale with translations" do
+  before(:each) do
+    I18n.default_locale = "en"
+    @english_locale = Locale.create!(:code => "en")
+    @spanish_locale = Locale.create!(:code => "es")
+
+    @spanish_locale.translations.create!(:key => 'key1', :value => 'translated1')
+    @spanish_locale.translations.create!(:key => 'key2', :value => 'translated2')
+    @spanish_locale.translations.create!(:key => 'key3', :value =>  nil) # 1 untranslated record
+  end
+
+  it "should have 3 translations" do
+    @spanish_locale.should have(3).translations
+  end
+
+  it "should have 1 untranslated" do
+    @spanish_locale.translations.untranslated.should have(1).records
+  end
+
+  it "should have 2 translated" do
+    @spanish_locale.translations.translated.should have(2).records
+  end
+
+  it "should have 67% translated" do
+    @spanish_locale.percentage_translated.should == 67
+  end
+
+end

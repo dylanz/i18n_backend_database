@@ -45,9 +45,7 @@ class Locale < ActiveRecord::Base
   end
 
   def percentage_translated
-    total_count = self.translations.count
-    untranslated_count = self.translations.untranslated.count
-    (total_count - untranslated_count).to_f / total_count.to_f * 100
+    (self.translations.translated.count.to_f / self.translations.count.to_f * 100).round
   end
 
   def self.available_locales

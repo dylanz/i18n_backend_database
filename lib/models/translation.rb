@@ -5,6 +5,7 @@ class Translation < ActiveRecord::Base
   after_update  :update_cache
 
   named_scope :untranslated, :conditions => {:value => nil}
+  named_scope :translated,   :conditions => "value IS NOT NULL"
 
   def default_locale_value(rescue_value='No default locale value')
     begin
