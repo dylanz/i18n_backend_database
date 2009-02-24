@@ -39,7 +39,7 @@ class Translation < ActiveRecord::Base
       else
         File.readlines(item).each { |l|
           l.grep(/#{search_string}/) { |r|
-            images.push(r[/(\').*(\')/] || r[/(\").*(\")/])
+            images.push(r[/\('(.*?)'\)/, 1] || r[/\("(.*?)"\)/, 1])
           }
       }
     end
