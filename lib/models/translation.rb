@@ -30,23 +30,6 @@ class Translation < ActiveRecord::Base
     "#{locale.code}:#{key}:#{pluralization_index}"
   end
 
-  def self.find_image_tags(dir='app/views', search_string='I18n.ta')
-    images = []
-    Dir.glob("#{dir}/*").each { |item|
-      if File.directory?(item)
-        images += find_image_tags(item, search_string)
-      else
-        File.readlines(item).each { |l|
-          l.grep(/#{search_string}/) { |r|
-            images.push(r[/\('(.*?)'\)/, 1] || r[/\("(.*?)"\)/, 1])
-          }
-      }
-    end
-    }
-    images
-  end
-
-
   protected
     def generate_hash_key
       self.key = Translation.hk(key)

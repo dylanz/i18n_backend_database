@@ -7,6 +7,8 @@ describe I18n do
       I18n.default_locale = "en"
       ActionView::Helpers::AssetTagHelper.send(:remove_const, :ASSETS_DIR)
       ActionView::Helpers::AssetTagHelper::ASSETS_DIR = "#{RAILS_ROOT}/vendor/plugins/i18n_backend_database/spec/assets/public"
+      I18n.send(:remove_const, :APP_DIRECTORY)
+      I18n::APP_DIRECTORY = "./vendor/plugins/i18n_backend_database/spec/assets"
     end
 
     describe "and locale en" do
@@ -33,14 +35,21 @@ describe I18n do
        I18n.ta("image2.gif").should == 'es/images/image2.gif'
       end
 
+      it "should return untranslated images" do
+        untranslated_assets = I18n.untranslated_assets(:es)
+        untranslated_assets.should have(2).assets
+        untranslated_assets.should include('rails.png')
+        untranslated_assets.should include('promo/sfc08_140x400_3.gif')
+      end
+
     end
   end
 
   it "should find my test views" do
-    test_dir = "./vendor/plugins/i18n_backend_database/spec/assets"
-    images = Translation.find_image_tags(test_dir)
-    images.should have(2).entries
+    images = I18n.find_translated_images("./vendor/plugins/i18n_backend_database/spec/assets")
+    images.should have(3).entries
     images.should include('rails.png')
+    images.should include('image2.gif')
     images.should include('promo/sfc08_140x400_3.gif')
   end
 
