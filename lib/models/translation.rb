@@ -30,7 +30,7 @@ class Translation < ActiveRecord::Base
     "#{locale.code}:#{key}:#{pluralization_index}"
   end
 
-  def self.find_image_tags(dir='app/views', search_string='translated_image_tag')
+  def self.find_image_tags(dir='app/views', search_string='I18n.ta')
     images = []
     Dir.glob("#{dir}/*").each { |item|
       if File.directory?(item)
