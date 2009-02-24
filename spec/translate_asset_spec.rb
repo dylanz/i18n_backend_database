@@ -5,8 +5,8 @@ describe I18n do
   describe "with default locale en" do
     before(:each) do
       I18n.default_locale = "en"
-      test_dir = "./vendor/plugins/i18n_backend_database/spec/assets/public"
-      ActionController::Base.asset_host = test_dir
+      ActionView::Helpers::AssetTagHelper.send(:remove_const, :ASSETS_DIR)
+      ActionView::Helpers::AssetTagHelper::ASSETS_DIR = "#{RAILS_ROOT}/vendor/plugins/i18n_backend_database/spec/assets/public"
     end
 
     describe "and locale en" do
@@ -27,6 +27,10 @@ describe I18n do
 
       it "should return default image path if no translation exists" do
        I18n.ta("image.gif").should == 'image.gif'
+      end
+
+      it "should return translated image path if translation exists" do
+       I18n.ta("image2.gif").should == 'es/images/image2.gif'
       end
 
     end
