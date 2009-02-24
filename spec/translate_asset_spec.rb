@@ -41,7 +41,10 @@ describe I18n::Backend::Database do
 
   it "should find my test views" do
     test_dir = "./vendor/plugins/i18n_backend_database/spec/assets"
-    Translation.find_image_tags(test_dir).should == ['rails.png', 'promo/sfc08_140x400_3.gif']
+    images = Translation.find_image_tags(test_dir)
+    images.should have(2).entries
+    images.should include 'rails.png'
+    images.should include 'promo/sfc08_140x400_3.gif'
   end
 
 
