@@ -1,18 +1,12 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
-describe I18n::Backend::Database do
-  before(:each) do
-    @backend = I18n::Backend::Database.new
-  end
-
-  after(:each) do
-    @backend.cache_store.clear
-  end
+describe I18n do
 
   describe "with default locale en" do
     before(:each) do
       I18n.default_locale = "en"
-      @english_locale = Locale.create!(:code => "en")
+      test_dir = "./vendor/plugins/i18n_backend_database/spec/assets/public"
+      ActionController::Base.asset_host = test_dir
     end
 
     describe "and locale en" do
@@ -21,7 +15,7 @@ describe I18n::Backend::Database do
       end
 
       it "should return default image path" do
-        @backend.translate_asset("en", "image.gif").should == 'image.gif'
+        I18n.ta("image.gif").should == 'image.gif'
       end
 
     end
@@ -29,11 +23,10 @@ describe I18n::Backend::Database do
     describe "and locale es" do
       before(:each) do
         I18n.locale = "es"
-        @spanish_locale = Locale.create!(:code => 'es')
       end
 
       it "should return default image path if no translation exists" do
-        @backend.translate_asset("es", "image.gif").should == 'image.gif'
+       I18n.ta("image.gif").should == 'image.gif'
       end
 
     end
