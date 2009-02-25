@@ -60,7 +60,7 @@ namespace :i18n do
     I18n.backend.cache_store.clear
   end
 
-  task :install_admin_assets => :environment do
+  namespace :install_admin_assets => :environment do
     images_dir     = Rails.root + '/public/images/'
     javascripts_dir = Rails.root + '/public/javascripts/'
     images  = Dir[File.join(File.dirname(__FILE__), '..') + '/lib/public/images/*.*']
