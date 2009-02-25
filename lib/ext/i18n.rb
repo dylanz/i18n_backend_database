@@ -1,42 +1,51 @@
 module I18n
   APP_DIRECTORY = 'app/views'
-  
+
   class << self
 
-    include ActionView::Helpers::AssetTagHelper
-
     def translate_asset(asset)
-      locale = I18n.locale
-      if File.exists?("#{ActionView::Helpers::AssetTagHelper::ASSETS_DIR}/#{locale}/#{image_path(asset)}")
-        return "#{locale}#{image_path(asset) }"
+      if locale_asset = locale_asset(asset)
+        locale_asset
       else
-        return asset
+        asset
       end
     end
 
     alias ta translate_asset
 
     def untranslated_assets(locale)
-      images = find_translated_images(APP_DIRECTORY)
-      locale = I18n.locale
-      images.reject! {|image| File.exists?("#{ActionView::Helpers::AssetTagHelper::ASSETS_DIR}/#{locale}/#{image_path(image)}") }
-      images
+      assets = find_translated_assets(APP_DIRECTORY)
+      assets.reject! {|asset| locale_asset_exists?(asset) }
+      assets
     end
 
-    def find_translated_images(dir, search_string='I18n.ta')
-      images = []
+    def find_translated_assets(dir, search_string='I18n.ta')
+      assets = []
       Dir.glob("#{dir}/*").each do |item|
         if File.directory?(item)
-          images += find_translated_images(item, search_string)
+          assets += find_translated_assets(item, search_string)
         else
           File.readlines(item).each do |l|
-            l.grep(/#{search_string}/) { |r| images.push(r[/\('(.*?)'\)/, 1] || r[/\("(.*?)"\)/, 1]) }
+            l.grep(/#{search_string}/) { |r| assets.push(r[/\('(.*?)'\)/, 1] || r[/\("(.*?)"\)/, 1]) }
           end
         end
       end
-      images
+      assets
     end
 
+    protected
+
+    def locale_asset_exists?(asset)
+      File.exists?("#{ActionView::Helpers::AssetTagHelper::ASSETS_DIR}/#{I18n.locale}#{asset_path(asset)}")
+    end
+
+    def locale_asset(asset)
+      locale_asset_exists?(asset) ? "/#{I18n.locale}#{asset_path(asset)}" : nil
+    end
+
+    def asset_path(asset)
+      asset[0] == ?/ ? asset : "/images/#{asset}"
+    end
 
   end
 end
