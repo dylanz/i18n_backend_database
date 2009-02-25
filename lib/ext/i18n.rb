@@ -14,16 +14,17 @@ module I18n
     alias ta translate_asset
 
     def untranslated_assets(locale)
-      assets = find_translated_assets(APP_DIRECTORY)
-      assets.reject! {|asset| locale_asset_exists?(asset) }
+      return [] if locale.to_s == I18n.default_locale.to_s #default locale assets are assumed to exist
+      assets = asset_translations
+      assets.reject! {|asset| locale_asset_exists?(locale, asset) }
       assets
     end
 
-    def find_translated_assets(dir, search_string='I18n.ta')
+    def asset_translations(dir=APP_DIRECTORY, search_string='I18n.ta')
       assets = []
       Dir.glob("#{dir}/*").each do |item|
         if File.directory?(item)
-          assets += find_translated_assets(item, search_string)
+          assets += asset_translations(item, search_string)
         else
           File.readlines(item).each do |l|
             l.grep(/#{search_string}/) { |r| assets.push(r[/\('(.*?)'\)/, 1] || r[/\("(.*?)"\)/, 1]) }
@@ -35,12 +36,12 @@ module I18n
 
     protected
 
-    def locale_asset_exists?(asset)
-      File.exists?("#{ActionView::Helpers::AssetTagHelper::ASSETS_DIR}/#{I18n.locale}#{asset_path(asset)}")
+    def locale_asset_exists?(locale, asset)
+      File.exists?("#{ActionView::Helpers::AssetTagHelper::ASSETS_DIR}/#{locale}#{asset_path(asset)}")
     end
 
     def locale_asset(asset)
-      locale_asset_exists?(asset) ? "/#{I18n.locale}#{asset_path(asset)}" : nil
+      locale_asset_exists?(I18n.locale, asset) ? "/#{I18n.locale}#{asset_path(asset)}" : nil
     end
 
     def asset_path(asset)

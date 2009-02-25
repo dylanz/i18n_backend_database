@@ -12,8 +12,16 @@ describe I18n do
     end
 
     it "should find my test views" do
-      I18n.find_translated_assets("./vendor/plugins/i18n_backend_database/spec/assets").should == ["promo/sfc08_140x400_3.gif", "image1.gif", 
-                                                      "image2.gif", "icons/icon1.gif", "icons/icon2.gif", "/favicons/favicon1.gif", "/favicons/favicon2.gif"] 
+      I18n.asset_translations.should == ["promo/sfc08_140x400_3.gif", "image1.gif", "image2.gif", "icons/icon1.gif", "icons/icon2.gif", 
+                                         "/favicons/favicon1.gif", "/favicons/favicon2.gif"] 
+    end
+
+    it "should return no untranslated assets" do
+      I18n.untranslated_assets(:en).should be_empty
+    end
+
+    it "should return untranslated assets" do
+      I18n.untranslated_assets(:es).should == ["promo/sfc08_140x400_3.gif", "image2.gif", "icons/icon2.gif", "/favicons/favicon2.gif"]
     end
 
     describe "and locale en" do
@@ -24,7 +32,6 @@ describe I18n do
       it "should return default asset path" do
         I18n.ta("image.gif").should == 'image.gif'
       end
-
     end
 
     describe "and locale es" do
@@ -39,11 +46,6 @@ describe I18n do
       it "should return translated asset path if translatied asset exists" do
        I18n.ta("image1.gif").should == '/es/images/image1.gif'
       end
-
-      it "should return untranslated assets" do
-        I18n.untranslated_assets(:es).should == ["promo/sfc08_140x400_3.gif", "image2.gif", "icons/icon2.gif", "/favicons/favicon2.gif"]
-      end
-
     end
 
   end

@@ -26,6 +26,20 @@ class TranslationsController < ActionController::Base
     end
   end
 
+  # GET /untranslated_assets
+  # GET /untranslated_assets.xml
+  def untranslated_assets
+    @locale ||= Locale.default_locale
+    @asset_translations  = I18n.asset_translations
+    @untranslated_assets = I18n.untranslated_assets(@locale.code)
+    @percentage_translated =   ( (@asset_translations.size - @untranslated_assets.size).to_f / @asset_translations.size.to_f * 100).round
+
+    respond_to do |format|
+      format.html # index.html.erb
+      format.xml  { render :xml => @untranslated_assets }
+    end
+  end
+
   # GET /translations/1
   # GET /translations/1.xml
   def show
