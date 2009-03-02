@@ -6,12 +6,6 @@ def load_default_locales(path_to_file=nil)
   end
 end
 
-def load_from_rails
-  I18n.load_path.each do |file|
-    load_from_yml file
-  end
-end
-
 def load_from_yml(file_name)
   data = YAML::load(IO.read(file_name))
   data.each do |code, translations| 
@@ -32,12 +26,23 @@ def load_from_yml(file_name)
         pluralization_index = 0
       end
 
-      translation = locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), pluralization_index) # find existing record by hash key
-      translation = locale.translations.build(:key =>key, :pluralization_index => pluralization_index) unless translation # or build new one with raw key
-      translation.value = value
-      translation.save!
+      if value.is_a?(Array)
+        value.each_with_index do |v, index|
+          create_translation(locale, "#{key}.#{index}", pluralization_index, v.to_s) unless v.nil?
+        end
+      else
+        create_translation(locale, key, pluralization_index, value)
+      end
+
     end
   end
+end
+
+def create_translation(locale, key, pluralization_index, value)
+  translation = locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), pluralization_index) # find existing record by hash key
+  translation = locale.translations.build(:key =>key, :pluralization_index => pluralization_index) unless translation # or build new one with raw key
+  translation.value = value
+  translation.save!
 end
 
 def extract_i18n_keys(hash, parent_keys = [])
@@ -71,9 +76,12 @@ namespace :i18n do
   end
 
   namespace :populate do
-    desc 'Populate the locales and translations tables from all Rails Locale YAML files.'
+    desc 'Populate the locales and translations tables from all Rails Locale YAML files. Can set LOCALE_YAML_FILES to comma separated list of files to overide'
     task :from_rails => :environment do
-      load_from_rails
+      yaml_files = ENV['LOCALE_YAML_FILES'] ? ENV['LOCALE_YAML_FILES'].split(',') : I18n.load_path
+      yaml_files.each do |file|
+        load_from_yml file
+      end
     end
 
     desc 'Populate default locales'

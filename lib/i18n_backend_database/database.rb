@@ -84,6 +84,23 @@ module I18n
         value
       end
 
+      # Acts the same as +strftime+, but returns a localized version of the 
+      # formatted date string. Takes a key from the date/time formats 
+      # translations as a format argument (<em>e.g.</em>, <tt>:short</tt> in <tt>:'date.formats'</tt>).        
+      def localize(locale, object, format = :default)
+        raise ArgumentError, "Object must be a Date, DateTime or Time object. #{object.inspect} given." unless object.respond_to?(:strftime)
+        
+        type = object.respond_to?(:sec) ? 'time' : 'date'
+        format = translate(locale, "#{type}.formats.#{format.to_s}") unless format.to_s.index('%') # lookup keyed formats unless a custom format is passed
+
+        format.gsub!(/%a/, translate(locale, "date.abbr_day_names.#{object.wday}")) 
+        format.gsub!(/%A/, translate(locale, "date.day_names.#{object.wday}"))
+        format.gsub!(/%b/, translate(locale, "date.abbr_month_names.#{object.mon}"))
+        format.gsub!(/%B/, translate(locale, "date.month_names.#{object.mon}"))
+        format.gsub!(/%p/, translate(locale, "time.#{object.hour < 12 ? :am : :pm}")) if object.respond_to? :hour
+        object.strftime(format)
+      end
+
       def available_locales
         Locale.available_locales
       end
