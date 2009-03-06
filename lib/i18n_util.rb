@@ -53,4 +53,35 @@ class I18nUtil
     end
   end
 
+  def self.seed_application_translations
+    translated_objects.each do |object|
+      begin
+        I18n.t(object) # default locale first
+        locales =  Locale.available_locales
+        locales.delete(I18n.default_locale)
+        # translate for other locales
+        locales.each do |locale|
+          I18n.t(object, :locale => locale)
+        end
+      rescue
+        # ignore errors
+      end
+    end
+  end
+
+  def self.translated_objects(dir='app/views')
+    assets = []
+    Dir.glob("#{dir}/*").each do |item|
+      if File.directory?(item)
+        assets += translated_objects(item)
+      else
+        File.readlines(item).each do |l|
+          translated_object = l[/I18n.t\('(.*?)'\)/, 1] || l[/I18n.t\("(.*?)"\)/, 1]
+          assets << translated_object if translated_object
+        end
+      end
+    end
+    assets
+  end
+
 end

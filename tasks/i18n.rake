@@ -31,6 +31,11 @@ namespace :i18n do
       end
     end
 
+    desc 'Populate the translation tables from translation calls within the application. This only works on basic text translations'
+    task :from_application => :environment do
+      I18nUtil.seed_application_translations
+    end
+
     desc 'Populate default locales'
     task :load_default_locales => :environment do
       load_default_locales(ENV['LOCALE_FILE'])

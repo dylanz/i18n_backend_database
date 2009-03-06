@@ -10,7 +10,8 @@ h2. Installation
     script/generate i18n_backend_database      # add migration
     rake db:migrate                            # migrate
     rake i18n:populate:load_default_locales    # populate default locales
-    rake i18n:populate:from_rails              # populate rails internal translations
+    rake i18n:populate:from_rails              # populate the locales and translations tables from all Rails Locale YAML files.
+    rake i18n:populate:from_application        # populate the translation tables from translation calls within the application.
   </code>
 </pre>
 
