@@ -105,7 +105,7 @@ Text stored in a database can be localized by tagging the text being stored and 
   </code>
 </pre>
 
-Images can be translated with the I!8n.ta tag
+Images can be translated with the I18n.ta tag
 <pre>
   <code>
     <%= image_tag(I18n.ta("logos/elc.gif"), :size => "134x75") %>
