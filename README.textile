@@ -101,7 +101,7 @@ Text stored in a database can be localized by tagging the text being stored and 
 <pre>
   <code>
     I18n.tlt("is now friends with") => "^^is now friends with^^"
-    I18n.lt("shane ^^is now friends with^^ dylan")=> "shane ahora es con amigos dylan"
+    I18n.lt("shane ^^is now friends with^^ dylan") => "shane ahora es con amigos dylan"
   </code>
 </pre>
 
