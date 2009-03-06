@@ -3,6 +3,17 @@ module I18n
 
   class << self
 
+    def localize_text(text, options = {})
+      locale = options[:locale] || I18n.locale
+      backend.localize_text(locale, text)
+    end
+    alias :lt :localize_text
+
+    def tag_localized_text(text)
+      backend.localize_text_tag + text + backend.localize_text_tag
+    end
+    alias :tlt :tag_localized_text
+
     def translate_asset(asset)
       if locale_asset = locale_asset(asset)
         locale_asset
@@ -10,7 +21,6 @@ module I18n
         asset
       end
     end
-
     alias ta translate_asset
 
     def untranslated_assets(locale)

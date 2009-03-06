@@ -13,11 +13,7 @@ describe I18n::Backend::Database do
     before(:each) do
       I18n.default_locale = "en"
       # load database with default active_support translations for english locale
-      system 'rake i18n:populate:from_rails LOCALE_YAML_FILES=vendor/rails/activesupport/lib/active_support/locale/en.yml'      
-    end
-
-    after(:each) do
-      Locale.find_by_code('en').destroy
+      I18nUtil.load_from_yml 'vendor/rails/activesupport/lib/active_support/locale/en.yml' 
     end
 
     describe "and locale en" do

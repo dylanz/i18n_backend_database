@@ -20,6 +20,15 @@ describe I18n::Backend::Database do
       @database.cache_store.class.should == ActiveSupport::Cache::MemCacheStore
     end
 
+    it "should have default localize text tag if none provided" do
+      @database.localize_text_tag.should == '^^'
+    end
+
+    it "should use custom localize text tag if  provided" do
+      @database = I18n::Backend::Database.new({:localize_text_tag => '##'})
+      @database.localize_text_tag.should == '##'
+    end
+
     it "should delegate the call to available_locales to the Locale class" do
       Locale.should_receive(:available_locales)
       @database.available_locales

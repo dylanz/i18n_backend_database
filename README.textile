@@ -21,6 +21,7 @@ In config/initialisers/i18n.rb
   <code>
     I18n.backend = I18n::Backend::Database.new # registers the backend
     I18n.backend.cache_store = :memory_store   # optional: specify an alternate cache store
+    I18n.backend.localize_text_tag = '##'      # optional: specify an alternate localize text tag, the default is ^^
   </code>
 </pre>
 
@@ -31,3 +32,58 @@ In config/routes.rb to register admin panel routes
     map.from_plugin 'i18n_backend_database'
   </code>
 </pre>
+
+h3. Use
+
+ * All non-user generated text provided by the application needs to be wrapped in a call to I18n.t().
+{{{
+I18n.t("Hello there!")
+}}}
+
+ * Interpolation is handled by passing in key/value pairs as a value to an interpolation tag ( {{ }} ).
+{{{
+I18n.t("Hello there {{name}}!", :name => "Dylan")
+}}}
+{{{
+I18n.t("Click {{here}} or {{there}}", :here => "link_to(I18n.t('midnite'), croix_path)", :there => "link_to(I18n.t('staten_island'), wu_path)")
+}}}
+
+ * Pluralization is handled by passing in a "count" key value pair, which is a unique interpolation value.
+{{{
+I18n.t("You are {{count}} years old", :count => 100)
+}}}
+
+ * Links to external documents that need to be translated should be tagged as well.
+{{{
+I18n.t('http://www.elctech.com/core')
+}}} 
+
+ * All fragment cache view blocks need to have their keys prepended with the current locale.
+{{{
+cache("#{I18n.locale}-footer_#{controller.action_name}")
+}}}
+
+ * Date/Time localization is handled by using the I18n.l method.  The format used will be :default (see next item for explanation).
+{{{
+I18n.l(@user.joined_at)
+}}}
+
+ * Date/Time localization can take a format parameter that corresponds to a key in the translations table (the Rails defaults :default, :short, and :long are available).  We could in theory create our own like en.date.formats.espn_default.
+{{{
+I18n.l(@user.joined_at, :format => :default)
+I18n.l(@user.joined_at, :format => :short)
+I18n.l(@user.joined_at, :format => :espn_default)
+}}}
+
+ * Date/Time localization can take a custom format string as well. And this is what has been used at the moment on the user profile page.
+{{{
+I18n.l(@user.joined_at, :format => "%B %e, %Y")
+}}}
+
+ * Text stored in a database can be localized by tagging the text being stored and then localizing in the view etc.
+{{{
+I18n.tlt("is now friends with") => "^^is now friends with^^"
+I18n.lt("shane ^^is now friends with^^ dylan")=> "shane is now friends with dylan"
+}}}
+
+

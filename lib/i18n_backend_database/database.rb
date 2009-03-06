@@ -9,10 +9,13 @@ module I18n
 
       attr_accessor :locale
       attr_accessor :cache_store
+      attr_accessor :localize_text_tag
 
       def initialize(options = {})
         store = options.delete(:cache_store)
+        text_tag = options.delete(:localize_text_tag)
         @cache_store = store ? ActiveSupport::Cache.lookup_store(store) : Rails.cache
+        @localize_text_tag = text_tag ? text_tag : '^^'
       end
 
       def locale=(code)
@@ -99,6 +102,14 @@ module I18n
         format.gsub!(/%B/, translate(locale, "date.month_names.#{object.mon}"))
         format.gsub!(/%p/, translate(locale, "time.#{object.hour < 12 ? :am : :pm}")) if object.respond_to? :hour
         object.strftime(format)
+      end
+
+      # Returns the text string with the text within the localize text tags translated.
+      def localize_text(locale, text)
+        text_tag    = Regexp.escape(localize_text_tag).to_s
+        expression  = Regexp.new(text_tag + "(.*?)" + text_tag)
+        tagged_text = text[expression, 1]
+        tagged_text ? text.sub(expression, translate(locale, tagged_text)) : text
       end
 
       def available_locales
