@@ -90,7 +90,7 @@ Date/Time localization can take a format parameter that corresponds to a key in 
   </code>
 </pre>
 
-Date/Time localization can take a custom format string as well. And this is what has been used at the moment on the user profile page.
+Date/Time localization can take a custom format string as well.
 <pre>
   <code>
     I18n.l(@user.joined_at, :format => "%B %e, %Y")
@@ -101,7 +101,7 @@ Text stored in a database can be localized by tagging the text being stored and 
 <pre>
   <code>
     I18n.tlt("is now friends with") => "^^is now friends with^^"
-    I18n.lt("shane ^^is now friends with^^ dylan")=> "shane is now friends with dylan"
+    I18n.lt("shane ^^is now friends with^^ dylan")=> "shane ahora es con amigos dylan"
   </code>
 </pre>
 
