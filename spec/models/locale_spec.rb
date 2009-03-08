@@ -47,6 +47,13 @@ describe "English and Spanish Locales with I18n default locale set to English" d
     Locale.default_locale.should == @english_locale
   end
 
+  it "should return list of non-default locales" do
+    @geek_locale = Locale.create!(:code => "gk")
+    Locale.non_defaults.should include(@spanish_locale)
+    Locale.non_defaults.should include(@geek_locale)
+    Locale.non_defaults.should_not include(@english_locale)
+  end
+
   it "should know that the english_locale is the default" do
     @english_locale.should be_default_locale
   end
@@ -55,6 +62,23 @@ describe "English and Spanish Locales with I18n default locale set to English" d
     translation = @english_locale.create_translation('key', 'Hello World')
     @english_locale.should have_translation('key')
   end
+
+  it "should have 0 translations" do
+    @spanish_locale.should have(0).translations
+  end
+
+  it "should have 0 untranslated" do
+    @spanish_locale.translations.untranslated.should have(0).records
+  end
+
+  it "should have 0 translated" do
+    @spanish_locale.translations.translated.should have(0).records
+  end
+
+  it "should have 100% translated" do
+    @spanish_locale.percentage_translated.should == 100
+  end
+
 end
 
 describe "Locale with translations" do

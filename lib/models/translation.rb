@@ -7,6 +7,8 @@ class Translation < ActiveRecord::Base
   named_scope :untranslated, :conditions => {:value => nil}
   named_scope :translated,   :conditions => "value IS NOT NULL"
 
+  attr_accessor :ignore_hash_key
+  
   def default_locale_value(rescue_value='No default locale value')
     begin
       Locale.default_locale.translations.find_by_key_and_pluralization_index(self.key, self.pluralization_index).value
@@ -32,7 +34,7 @@ class Translation < ActiveRecord::Base
 
   protected
     def generate_hash_key
-      self.key = Translation.hk(key)
+      self.key = Translation.hk(key) unless ignore_hash_key
     end
 
     def update_cache

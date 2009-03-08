@@ -1,5 +1,6 @@
 class I18nUtil
 
+  # Create tanslation records from the YAML file.  Will create the required locales if they do not exist.
   def self.load_from_yml(file_name)
     data = YAML::load(IO.read(file_name))
     data.each do |code, translations| 
@@ -32,6 +33,7 @@ class I18nUtil
     end
   end
 
+  # Finds or creates a translation record and updates the value
   def self.create_translation(locale, key, pluralization_index, value)
     translation = locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), pluralization_index) # find existing record by hash key
     translation = locale.translations.build(:key =>key, :pluralization_index => pluralization_index) unless translation # or build new one with raw key
@@ -53,6 +55,7 @@ class I18nUtil
     end
   end
 
+  # Create translation records for all existing locales from translation calls with the application.  Ignores errors from tranlations that require objects.
   def self.seed_application_translations
     translated_objects.each do |object|
       begin
@@ -63,7 +66,7 @@ class I18nUtil
         locales.each do |locale|
           I18n.t(object, :locale => locale)
         end
-      rescue
+      rescue Exception => e
         # ignore errors
       end
     end
@@ -84,4 +87,13 @@ class I18nUtil
     assets
   end
 
+  # Populate translation records from the default locale to other locales if no record exists.
+  def self.synchronize_translations
+    non_default_locales = Locale.non_defaults
+    Locale.default_locale.translations.each do |t|
+      non_default_locales.each do |locale|
+        locale.translations.create!(:key => t.key, :value => nil, :ignore_hash_key => true) unless locale.translations.exists?(:key => t.key, :pluralization_index => t.pluralization_index)
+      end
+    end
+  end
 end

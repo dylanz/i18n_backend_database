@@ -3,6 +3,7 @@ class Locale < ActiveRecord::Base
   validates_uniqueness_of :code
 
   has_many :translations, :dependent => :destroy
+  named_scope :non_defaults, :conditions => ["code != ?", I18n.default_locale.to_s]
 
   @@default_locale = nil
 
@@ -45,7 +46,7 @@ class Locale < ActiveRecord::Base
   end
 
   def percentage_translated
-    (self.translations.translated.count.to_f / self.translations.count.to_f * 100).round
+    (self.translations.translated.count.to_f / self.translations.count.to_f * 100).round rescue 100
   end
 
   def self.available_locales
