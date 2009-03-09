@@ -24,6 +24,10 @@ describe I18n::Backend::Database do
         @backend.localize_text("en", "shane ^^is now friends with^^ dylan").should == "shane is now friends with dylan"
       end
 
+      it "should localize text tagged more than once" do
+        @backend.localize_text("en", "dylan ^^is now friends with^^ shane ^^and is happy, ^^dylan ^^claps his hands!^^").should == "dylan is now friends with shane and is happy, dylan claps his hands!"
+      end
+
       it "should localize tagged text using class method" do
         I18n.localize_text("shane ^^is now friends with^^ dylan").should == "shane is now friends with dylan"
       end

@@ -109,7 +109,11 @@ module I18n
         text_tag    = Regexp.escape(localize_text_tag).to_s
         expression  = Regexp.new(text_tag + "(.*?)" + text_tag)
         tagged_text = text[expression, 1]
-        tagged_text ? text.sub(expression, translate(locale, tagged_text)) : text
+        while tagged_text do
+          text = text.sub(expression, translate(locale, tagged_text))
+          tagged_text = text[expression, 1]
+        end
+        return text
       end
 
       def available_locales
