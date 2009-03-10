@@ -72,7 +72,7 @@ class I18nUtil
     end
   end
 
-  def self.translated_objects(dir='app/views')
+  def self.translated_objects(dir='app')
     assets = []
     Dir.glob("#{dir}/*").each do |item|
       if File.directory?(item)
