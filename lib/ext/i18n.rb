@@ -41,7 +41,7 @@ module I18n
           end
         end
       end
-      assets
+      assets.uniq
     end
 
     protected
