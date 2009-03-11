@@ -1,0 +1,34 @@
+<% form_tag translations_url do -%>
+<%= select_tag :locale_id,    options_from_collection_for_select(Locale.all, :code, :name, @locale.code) -%>
+<%= select_tag :translation_option, options_from_collection_for_select(TranslationOption.all, :code, :description, @translation_option.code) -%>
+<%= submit_tag 'Go' %>
+<% end -%>
+
+<script type="text/javascript">
+   Event.observe(window, 'load', function() {
+       myJsProgressBarHandler = new JS_BRAMUS.jsProgressBar($('translate_progress'), 0);
+   }, false);
+</script>
+
+<p>
+  Textual Translation progress: <span class="progressBar" id="translate_progress"><%= @locale.percentage_translated %></span>
+</p>
+
+<h2><%= @translation_option.description %>: <%= @locale.name %></h2>
+
+<% if @translations.empty? -%>
+  <h3>No records for this criteria.</h3>
+<% end -%>
+
+<% for translation in @translations %>
+  <div id="<%= "translation_#{translation.class}_#{translation.id}" %>">
+  <% remote_form_for([@locale, translation]) do |f| %>
+    <p><%=h translation.default_locale_value %></p>
+    <p>
+      <%= f.text_field :value %>
+      <%= f.submit "Update" %>
+    </p>
+  <% end %>
+  <hr/>
+  </div>
+<% end %>

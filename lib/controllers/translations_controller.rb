@@ -14,11 +14,17 @@ class TranslationsController < ActionController::Base
     end
   end
 
-  # GET /untranslated
-  # GET /untranslated.xml
-  def untranslated
+  # GET /translations
+  # GET /translations.xml
+  def translations
     @locale ||= Locale.default_locale
-    @translations = @locale.translations.untranslated
+    @translation_option = TranslationOption.find(params[:translation_option])
+    
+    if @translation_option == TranslationOption.translated
+      @translations = @locale.translations.translated
+    else
+      @translations = @locale.translations.untranslated
+    end
 
     respond_to do |format|
       format.html # index.html.erb
@@ -26,13 +32,21 @@ class TranslationsController < ActionController::Base
     end
   end
 
-  # GET /untranslated_assets
-  # GET /untranslated_assets.xml
-  def untranslated_assets
+  # GET /asset_translations
+  # GET /asset_translations.xml
+  def asset_translations
     @locale ||= Locale.default_locale
+    @translation_option = TranslationOption.find(params[:translation_option])
+
     @asset_translations  = I18n.asset_translations
     @untranslated_assets = I18n.untranslated_assets(@locale.code)
     @percentage_translated =   ( (@asset_translations.size - @untranslated_assets.size).to_f / @asset_translations.size.to_f * 100).round
+
+    if @translation_option == TranslationOption.translated
+      @asset_translations = @asset_translations.reject{|e| @untranslated_assets.include?(e)}
+    else
+      @asset_translations = @untranslated_assets
+    end
 
     respond_to do |format|
       format.html # index.html.erb
@@ -88,6 +102,7 @@ class TranslationsController < ActionController::Base
   # PUT /translations/1.xml
   def update
     @translation  = @locale.translations.find(params[:id])
+    @first_time_translating = @translation.value.nil?
 
     respond_to do |format|
       if @translation.update_attributes(params[:translation])

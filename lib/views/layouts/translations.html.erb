@@ -10,7 +10,9 @@
   <%= javascript_include_tag 'jsProgressBarHandler.js' %>
 </head>
 <body>
-
+  <p>
+    <%= link_to 'Textual Translations', translations_url %> &middot; <%= link_to 'Asset Translations', asset_translations_url %>
+  </p>
 <body class="content">
   <div class="content">
     <%= yield  %>

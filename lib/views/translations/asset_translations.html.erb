@@ -1,0 +1,28 @@
+<% form_tag asset_translations_url do -%>
+<%= select_tag :locale_id,    options_from_collection_for_select(Locale.all, :code, :name, @locale.code) -%>
+<%= select_tag :translation_option, options_from_collection_for_select(TranslationOption.all, :code, :description, @translation_option.code) -%>
+<%= submit_tag 'Go' %>
+<% end -%>
+
+<script type="text/javascript">
+   Event.observe(window, 'load', function() {
+       myJsProgressBarHandler = new JS_BRAMUS.jsProgressBar($('translate_progress'), 0);
+   }, false);
+</script>
+
+<p>
+  Asset Translation progress: <span class="progressBar" id="translate_progress"><%= @percentage_translated %></span>
+</p>
+
+<h2><%= @translation_option.description %>: <%= @locale.name %></h2>
+
+<% if @asset_translations.empty? -%>
+  <h3>No records for this criteria.</h3>
+<% end -%>
+
+<% for asset in @asset_translations %>
+<p>
+  <%= image_tag(asset, :size => "50x50") %>
+  <%= link_to(asset, image_path(asset)) %>
+</p>
+<% end %>

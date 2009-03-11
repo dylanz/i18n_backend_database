@@ -12,6 +12,9 @@ describe TranslationsController do
   end
   
   def mock_translation(stubs={})
+    stubs = {
+      :value => nil
+    }.merge(stubs)
     @mock_translation ||= mock_model(Translation, stubs)
   end
   
