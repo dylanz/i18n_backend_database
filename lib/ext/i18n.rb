@@ -3,6 +3,11 @@ module I18n
 
   class << self
 
+    def locale_segment
+      I18n.locale.to_s == I18n.default_locale.to_s ? "" : "/#{I18n.locale}"
+    end
+    alias :ls :locale_segment
+
     def localize_text(text, options = {})
       locale = options[:locale] || I18n.locale
       backend.localize_text(locale, text)
