@@ -36,9 +36,17 @@ namespace :i18n do
       I18nUtil.seed_application_translations
     end
 
+    desc 'Create translation records from all default locale translations if none exists.'
+    task :synchronize_translations => :environment do
+      I18nUtil.synchronize_translations
+    end
+
     desc 'Populate default locales'
     task :load_default_locales => :environment do
       load_default_locales(ENV['LOCALE_FILE'])
     end
+
+    desc 'Runs all populate methods in this order: load_default_locales, from_rails, from_application, synchronize_translations'
+    task :all => ["load_default_locales", "from_rails", "from_application", "synchronize_translations"]
   end
 end
