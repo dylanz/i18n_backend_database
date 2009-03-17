@@ -33,16 +33,43 @@ describe I18n::Backend::Database do
         @english_locale.should have(1).translation
       end
 
+      it "should support having a record with a nil value" do
+        @english_locale.translations.create!(:key => '.date.order')
+        @backend.translate("en", :'date.order').should be_nil
+        @english_locale.should have(1).translation
+      end
+
+      it "should create a record with a nil value when key is a symbol" do
+        @backend.translate("en", :'date.order').should be_nil
+        @english_locale.should have(1).translation
+        @english_locale.translations.first.key.should == Translation.hk('.date.order')
+        @english_locale.translations.first.value.should be_nil
+      end
+
       it "should find a cached record from a cache key if it exists in the cache" do
         hash_key = Translation.hk("blah")
         @backend.cache_store.write("en:#{hash_key}:1", 'woot')
         @backend.translate("en", "blah").should == "woot"
       end
 
+      it "should find a cached record with a nil value from a cache key if it exists in the cache" do
+        hash_key = Translation.hk(".date.order")
+        @backend.cache_store.write("en:#{hash_key}:1", nil)
+        @backend.translate("en", :'date.order').should be_nil
+      end
+
       it "should write a cache record to the cache for a newly created translation record" do
         hash_key = Translation.hk("blah")
         @backend.translate("en", "blah")
         @backend.cache_store.read("en:#{hash_key}:1").should == "blah"
+      end
+
+      it "should write a cache record to the cache for translation record with nil value" do
+        @english_locale.translations.create!(:key => '.date.order')
+        @backend.translate("en", :'date.order').should be_nil
+
+        hash_key = Translation.hk(".date.order")
+        @backend.cache_store.read("en:#{hash_key}:1").should be_nil
       end
 
       it "should handle active record helper defaults, where default is the object name" do
@@ -173,6 +200,15 @@ describe I18n::Backend::Database do
       it "should return just the passed in value when no translated record and no default translation" do
         @backend.translate("es", "String").should == "String" 
         @spanish_locale.should have(1).translation
+      end
+
+      it "should support having a default locale record with a nil value" do
+        @english_locale.translations.create!(:key => '.date.order')
+        @backend.translate("es", :'date.order').should be_nil
+
+        @spanish_locale.should have(1).translation
+        @spanish_locale.translations.first.key.should == Translation.hk('.date.order')
+        @spanish_locale.translations.first.value.should be_nil
       end
 
       it "should be able to handle interpolated values" do

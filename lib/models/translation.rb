@@ -23,7 +23,7 @@ class Translation < ActiveRecord::Base
 
   # create hash key
   def self.hk(key)
-    Base64.encode64(Digest::MD5.hexdigest(key))
+    Base64.encode64(Digest::MD5.hexdigest(key.to_s))
   end
 
   # create cache key

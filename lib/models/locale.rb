@@ -22,8 +22,8 @@ class Locale < ActiveRecord::Base
   def create_translation(key, value, pluralization_index=1)
     conditions = {:key => key, :pluralization_index => pluralization_index}
 
-    # set the key as the value if we're using the default locale
-    conditions.merge!({:value => value}) if (self.code == I18n.default_locale.to_s)
+    # set the key as the value if we're using the default locale and the key is a string
+    conditions.merge!({:value => value}) if (self.code == I18n.default_locale.to_s && key.is_a?(String))
     translation = self.translations.create(conditions)
 
     # hackity hack.  bug #922 maybe?

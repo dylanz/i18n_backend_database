@@ -41,7 +41,7 @@ module I18n
         # create a composite key if scope provided
         original_key = key
         options[:scope] = [options[:scope]] unless options[:scope].is_a?(Array)
-        key = "#{options[:scope].join('.')}.#{key}" if options[:scope] && key.is_a?(Symbol)
+        key = :"#{options[:scope].join('.')}.#{key}" if options[:scope] && key.is_a?(Symbol)
         count = (options[:count].nil? || options[:count] == 1) ? 1 : 0
         cache_key = Translation.ck(@locale, key, count)
 
@@ -50,6 +50,7 @@ module I18n
 
         if @cache_store.exist?(cache_key)
           translation = @cache_store.read(cache_key)
+          return translation if translation.nil? && @locale.default_locale?
           return interpolate(@locale.code, translation, values) if translation
         else
           translation =  @locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count)
