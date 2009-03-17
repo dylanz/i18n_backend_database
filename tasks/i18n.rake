@@ -2,7 +2,7 @@ def load_default_locales(path_to_file=nil)
   path_to_file ||= File.join(File.dirname(__FILE__), "../data", "locales.yml")
   data = YAML::load(IO.read(path_to_file))
   data.each do |code, y|
-    Locale.create({:code => code, :name => y["name"]})
+    Locale.create({:code => code, :name => y["name"]}) unless Locale.exists?(:code => code)
   end
 end
 

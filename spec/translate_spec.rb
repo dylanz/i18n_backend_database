@@ -24,6 +24,7 @@ describe I18n::Backend::Database do
         @backend.translate("en", "String").should == "String"
         @english_locale.should have(1).translation
         @english_locale.translations.first.key.should == Translation.hk("String")
+        @english_locale.translations.first.raw_key.should == "String"
         @english_locale.translations.first.value.should == "String"
       end
 
@@ -34,7 +35,7 @@ describe I18n::Backend::Database do
       end
 
       it "should support having a record with a nil value" do
-        @english_locale.translations.create!(:key => '.date.order')
+        @english_locale.translations.create!(:key => 'date.order')
         @backend.translate("en", :'date.order').should be_nil
         @english_locale.should have(1).translation
       end
@@ -42,7 +43,8 @@ describe I18n::Backend::Database do
       it "should create a record with a nil value when key is a symbol" do
         @backend.translate("en", :'date.order').should be_nil
         @english_locale.should have(1).translation
-        @english_locale.translations.first.key.should == Translation.hk('.date.order')
+        @english_locale.translations.first.key.should == Translation.hk('date.order')
+        @english_locale.translations.first.raw_key.should == "date.order"
         @english_locale.translations.first.value.should be_nil
       end
 
@@ -203,11 +205,11 @@ describe I18n::Backend::Database do
       end
 
       it "should support having a default locale record with a nil value" do
-        @english_locale.translations.create!(:key => '.date.order')
+        @english_locale.translations.create!(:key => 'date.order')
         @backend.translate("es", :'date.order').should be_nil
 
         @spanish_locale.should have(1).translation
-        @spanish_locale.translations.first.key.should == Translation.hk('.date.order')
+        @spanish_locale.translations.first.key.should == Translation.hk('date.order')
         @spanish_locale.translations.first.value.should be_nil
       end
 
