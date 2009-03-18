@@ -46,6 +46,10 @@ describe I18n::Backend::Database do
         @english_locale.translations.first.key.should == Translation.hk('date.order')
         @english_locale.translations.first.raw_key.should == "date.order"
         @english_locale.translations.first.value.should be_nil
+
+        # once cached
+        @backend.translate("en", :'date.order').should be_nil
+        @english_locale.reload.should have(1).translation
       end
 
       it "should find a cached record from a cache key if it exists in the cache" do
@@ -78,6 +82,16 @@ describe I18n::Backend::Database do
         options = {:count=>1, :scope=>[:activerecord, :models], :default=>"post"}
         @english_locale.translations.create!(:key => 'activerecord.errors.models.blank', :value => 'post')
         @backend.translate("en", :"models.blank", options).should == 'post'
+      end
+
+      it "should handle translating defaults used by active record attributes" do
+        options = {:scope=>[:activerecord, :attributes], :count=>1, :default=>["Content"]}
+        @backend.translate("en", :"post.content", options).should == 'Content'
+
+        # and when cached
+        options = {:scope=>[:activerecord, :attributes], :count=>1, :default=>["Content"]}
+        @backend.translate("en", :"post.content", options).should == 'Content'
+        @english_locale.should have(1).translation
       end
 
       it "should be able to handle interpolated values" do

@@ -40,7 +40,7 @@ module I18n
 
         # create a composite key if scope provided
         original_key = key
-        options[:scope] = [options[:scope]] unless options[:scope].is_a?(Array) || options[:scope].nil?
+        options[:scope] = [options[:scope]] unless options[:scope].is_a?(Array) || options[:scope].blank?
         key = :"#{options[:scope].join('.')}.#{key}" if options[:scope] && key.is_a?(Symbol)
         count = (options[:count].nil? || options[:count] == 1) ? 1 : 0
         cache_key = Translation.ck(@locale, key, count)
@@ -50,7 +50,6 @@ module I18n
 
         if @cache_store.exist?(cache_key)
           translation = @cache_store.read(cache_key)
-          return translation if translation.nil? && @locale.default_locale?
           return interpolate(@locale.code, translation, values) if translation
         else
           translation =  @locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count)
@@ -77,6 +76,8 @@ module I18n
           return translate(@locale.code, default, options.dup)
         end
 
+        # we check the database before creating a translation as we can have translations with nil values
+        translation =  @locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count)
         # if we still have no blasted translation just go and create one for the current locale!
         translation = @locale.create_translation(key, key, count) unless translation
 
