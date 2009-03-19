@@ -35,14 +35,14 @@ module I18n
       assets
     end
 
-    def asset_translations(dir=APP_DIRECTORY, search_string='I18n.ta')
+    def asset_translations(dir=APP_DIRECTORY)
       assets = []
       Dir.glob("#{dir}/*").each do |item|
         if File.directory?(item)
-          assets += asset_translations(item, search_string)
+          assets += asset_translations(item)
         else
           File.readlines(item).each do |l|
-            l.grep(/#{search_string}/) { |r| assets.push(r[/\('(.*?)'\)/, 1] || r[/\("(.*?)"\)/, 1]) }
+            assets += l.scan(/I18n.ta\(["'](.*?)["']\)/).flatten
           end
         end
       end

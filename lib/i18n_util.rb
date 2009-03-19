@@ -79,8 +79,7 @@ class I18nUtil
         assets += translated_objects(item)
       else
         File.readlines(item).each do |l|
-          translated_object = l[/I18n.t\('(.*?)'\)/, 1] || l[/I18n.t\("(.*?)"\)/, 1]
-          assets << translated_object if translated_object
+          assets += l.scan(/I18n.t\(["'](.*?)["']\)/).flatten
         end
       end
     end

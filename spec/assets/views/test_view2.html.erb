@@ -4,8 +4,7 @@
 <%= image_tag(I18n.ta('image2.gif')) %> <!-- test duplicate tag ... image should only appear once -->
 <%= image_tag(I18n.ta('icons/icon1.gif')) %>
 <%= image_tag(I18n.ta('icons/icon2.gif')) %>
-<%= image_tag(I18n.ta('/favicons/favicon1.gif')) %>
-<%= image_tag(I18n.ta('/favicons/favicon2.gif')) %>
+<%= image_tag(I18n.ta('/favicons/favicon1.gif')) image_tag(I18n.ta('/favicons/favicon2.gif')) %> <!-- should find tags on same line -->
 
 <table>
   <tr>
