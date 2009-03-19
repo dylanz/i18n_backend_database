@@ -24,5 +24,9 @@
 <p>
   <%= image_tag(asset, :size => "50x50") %>
   <%= link_to(asset, image_path(asset)) %>
+  <% if !@locale.default_locale? && @translation_option == TranslationOption.translated -%>
+    <%= image_tag(I18n.ta(asset, :locale => @locale.code), :size => "50x50") %>
+    <%= link_to(asset, image_path(I18n.ta(asset, :locale => @locale.code))) %>
+  <% end -%>
 </p>
 <% end %>

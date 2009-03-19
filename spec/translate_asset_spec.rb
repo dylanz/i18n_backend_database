@@ -32,6 +32,10 @@ describe I18n do
       it "should return default asset path" do
         I18n.ta("image.gif").should == 'image.gif'
       end
+
+      it "should return translated asset path for locale passed" do
+       I18n.ta("image1.gif", :locale => :es).should == '/es/images/image1.gif'
+      end
     end
 
     describe "and locale es" do

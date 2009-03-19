@@ -19,8 +19,9 @@ module I18n
     end
     alias :tlt :tag_localized_text
 
-    def translate_asset(asset)
-      if locale_asset = locale_asset(asset)
+    def translate_asset(asset, options={})
+      locale = options.delete(:locale) || I18n.locale
+      if locale_asset = locale_asset(asset, locale)
         locale_asset
       else
         asset
@@ -55,8 +56,8 @@ module I18n
       File.exists?("#{ActionView::Helpers::AssetTagHelper::ASSETS_DIR}/#{locale}#{asset_path(asset)}")
     end
 
-    def locale_asset(asset)
-      locale_asset_exists?(I18n.locale, asset) ? "/#{I18n.locale}#{asset_path(asset)}" : nil
+    def locale_asset(asset, locale)
+      locale_asset_exists?(locale, asset) ? "/#{locale}#{asset_path(asset)}" : nil
     end
 
     def asset_path(asset)
