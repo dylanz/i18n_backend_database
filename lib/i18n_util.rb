@@ -58,17 +58,23 @@ class I18nUtil
   # Create translation records for all existing locales from translation calls with the application.  Ignores errors from tranlations that require objects.
   def self.seed_application_translations
     translated_objects.each do |object|
+      interpolation_arguments= object.scan(/\{\{(.*?)\}\}/).flatten
+      object = object[/'(.*?)'/, 1] || object[/"(.*?)"/, 1]
+      options = {}
+      interpolation_arguments.each { |arg|  options[arg.to_sym] = nil }
+
       begin
-        I18n.t(object) # default locale first
+        I18n.t(object, options) # default locale first
         locales =  Locale.available_locales
         locales.delete(I18n.default_locale)
         # translate for other locales
         locales.each do |locale|
-          I18n.t(object, :locale => locale)
+          I18n.t(object, options.merge(:locale => locale))
         end
       rescue Exception => e
         # ignore errors
       end
+
     end
   end
 
@@ -79,7 +85,7 @@ class I18nUtil
         assets += translated_objects(item)
       else
         File.readlines(item).each do |l|
-          assets += l.scan(/I18n.t\(["'](.*?)["']\)/).flatten
+          assets += l.scan(/I18n.t\((.*?)\)/).flatten
         end
       end
     end
