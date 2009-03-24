@@ -38,55 +38,36 @@ module I18n
       def translate(locale, key, options = {})
         @locale = locale_in_context(locale)
 
-        # create a composite key if scope provided
-        original_key = key
         options[:scope] = [options[:scope]] unless options[:scope].is_a?(Array) || options[:scope].blank?
-        key = :"#{options[:scope].join('.')}.#{key}" if options[:scope] && key.is_a?(Symbol)
+        key = "#{options[:scope].join('.')}.#{key}".to_sym if options[:scope] && key.is_a?(Symbol)
         count = (options[:count].nil? || options[:count] == 1) ? 1 : 0
-        cache_key = Translation.ck(@locale, key, count)
 
         # pull out values for interpolation
         values = options.reject { |name, value| [:scope, :default].include?(name) }
 
-        if @cache_store.exist?(cache_key)
-          translation = @cache_store.read(cache_key)
-          return interpolate(@locale.code, translation, values) if translation
-        else
-          translation =  @locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count)
-          # what we are crossing our fingers for is that this will cache the fact that this key has NO db translation
-          @cache_store.write(Translation.ck(@locale, key, count), nil) unless translation
-        end
+        translation = lookup(@locale, key, count)
 
-        if !translation && !@locale.default_locale?
-          default_locale_cache_key = Translation.ck(Locale.default_locale, key, count)
-
-          if @cache_store.exist?(default_locale_cache_key)
-            default_locale_translation = @cache_store.read(default_locale_cache_key)
-          else
-            default_locale_translation = Locale.default_locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count)
-            @cache_store.write(default_locale_cache_key, (default_locale_translation.nil? ? nil : default_locale_translation.value))
-          end
-
+        unless translation || @locale.default_locale?
+          default_locale_translation = lookup(Locale.default_locale, key, count)
           translation = @locale.create_translation(key, key, count) if default_locale_translation
         end
 
         # if we have no translation and some defaults ... start looking them up
-        unless original_key.is_a?(String) || translation || options[:default].blank?
+        unless key.is_a?(String) || translation || options[:default].blank?
           default = options[:default].is_a?(Array) ? options[:default].shift : options.delete(:default)
           return translate(@locale.code, default, options.dup)
         end
 
         # we check the database before creating a translation as we can have translations with nil values
-        translation =  @locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count)
         # if we still have no blasted translation just go and create one for the current locale!
-        translation = @locale.create_translation(key, key, count) unless translation
-
+        unless translation 
+          translation =  @locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count) ||
+                         @locale.create_translation(key, key, count)
+        end
 
         value = translation.value_or_default(key)
-        @cache_store.write(cache_key, value)
-
-        value = interpolate(@locale.code, value, values)
-        value
+        @cache_store.write(Translation.ck(@locale, key, count), value)
+        interpolate(@locale.code, value, values)
       end
 
       # Acts the same as +strftime+, but returns a localized version of the 
@@ -136,6 +117,18 @@ module I18n
           locale = Locale.find_by_code(locale.to_s)
           raise InvalidLocale.new(locale) unless locale
           locale
+        end
+
+        # lookup key in cache and db, if the db is hit the value is cached
+        def lookup(locale, key, count)
+          cache_key = Translation.ck(locale, key, count)
+          if @cache_store.exist?(cache_key) && value = @cache_store.read(cache_key)
+            translation = Translation.new(:value => value)
+          else
+            translation = locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count)
+            @cache_store.write(cache_key, (translation.nil? ? nil : translation.value))
+          end
+          return translation
         end
 
         # Interpolates values into a given string.
