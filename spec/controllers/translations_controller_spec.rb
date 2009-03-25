@@ -25,7 +25,7 @@ describe TranslationsController do
   describe "responding to GET index" do
 
     it "should expose all translations as @translations" do
-      mock_locale.translations.should_receive(:find).with(:all).and_return([mock_translation])
+      mock_locale.translations.should_receive(:find).with(:all, {:order=>"raw_key, pluralization_index"}).and_return([mock_translation])
       get :index, :locale_id => "en"
       assigns[:translations].should == [mock_translation]
     end
@@ -34,7 +34,7 @@ describe TranslationsController do
   
       it "should render all translations as xml" do
         request.env["HTTP_ACCEPT"] = "application/xml"
-        mock_locale.translations.should_receive(:find).with(:all).and_return(translations = mock("Array of Translations"))
+        mock_locale.translations.should_receive(:find).with(:all, {:order=>"raw_key, pluralization_index"}).and_return(translations = mock("Array of Translations"))
         translations.should_receive(:to_xml).and_return("generated XML")
         get :index, :locale_id => "en"
         response.body.should == "generated XML"

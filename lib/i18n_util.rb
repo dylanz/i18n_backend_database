@@ -23,7 +23,7 @@ class I18nUtil
 
         if value.is_a?(Array)
           value.each_with_index do |v, index|
-            create_translation(locale, "#{key}.#{index}", pluralization_index, v.to_s) unless v.nil?
+            create_translation(locale, "#{key}", index, v) unless v.nil?
           end
         else
           create_translation(locale, key, pluralization_index, value)
@@ -36,7 +36,10 @@ class I18nUtil
   # Finds or creates a translation record and updates the value
   def self.create_translation(locale, key, pluralization_index, value)
     translation = locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), pluralization_index) # find existing record by hash key
-    translation = locale.translations.build(:key =>key, :pluralization_index => pluralization_index) unless translation # or build new one with raw key
+    unless translation # or build new one with raw key
+      translation = locale.translations.build(:key =>key, :pluralization_index => pluralization_index)
+      puts "from yaml create translation for #{locale.code} : #{key} : #{pluralization_index}" unless RAILS_ENV['test']
+    end
     translation.value = value
     translation.save!
   end
@@ -62,17 +65,15 @@ class I18nUtil
       object = object[/'(.*?)'/, 1] || object[/"(.*?)"/, 1]
       options = {}
       interpolation_arguments.each { |arg|  options[arg.to_sym] = nil }
+      next if object.nil?
 
-      begin
-        I18n.t(object, options) # default locale first
-        locales =  Locale.available_locales
-        locales.delete(I18n.default_locale)
-        # translate for other locales
-        locales.each do |locale|
-          I18n.t(object, options.merge(:locale => locale))
-        end
-      rescue Exception => e
-        # ignore errors
+      puts "translating for #{object} with options #{options.inspect}" unless RAILS_ENV['test']        
+      I18n.t(object, options) # default locale first
+      locales =  Locale.available_locales
+      locales.delete(I18n.default_locale)
+      # translate for other locales
+      locales.each do |locale|
+        I18n.t(object, options.merge(:locale => locale))
       end
 
     end
@@ -89,7 +90,7 @@ class I18nUtil
         end
       end
     end
-    assets
+    assets.uniq
   end
 
   # Populate translation records from the default locale to other locales if no record exists.
@@ -97,7 +98,11 @@ class I18nUtil
     non_default_locales = Locale.non_defaults
     Locale.default_locale.translations.each do |t|
       non_default_locales.each do |locale|
-        locale.translations.create!(:key => t.key, :value => nil, :ignore_hash_key => true) unless locale.translations.exists?(:key => t.key, :pluralization_index => t.pluralization_index)
+        unless locale.translations.exists?(:key => t.key, :pluralization_index => t.pluralization_index)
+          value = t.value =~ /^---(.*)\n/ ? t.value : nil # well will copy across YAML, like symbols
+          locale.translations.create!(:key => t.raw_key, :value => value, :pluralization_index => t.pluralization_index)
+          puts "synchronizing has created translation for #{locale.code} : #{t.raw_key} : #{t.pluralization_index}" unless RAILS_ENV['test']
+        end
       end
     end
   end

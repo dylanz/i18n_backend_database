@@ -40,34 +40,36 @@ module I18n
 
         options[:scope] = [options[:scope]] unless options[:scope].is_a?(Array) || options[:scope].blank?
         key = "#{options[:scope].join('.')}.#{key}".to_sym if options[:scope] && key.is_a?(Symbol)
-        count = (options[:count].nil? || options[:count] == 1) ? 1 : 0
-
+        count = options[:count]
         # pull out values for interpolation
         values = options.reject { |name, value| [:scope, :default].include?(name) }
 
-        translation = lookup(@locale, key, count)
+        entry = lookup(@locale, key)
 
-        unless translation || @locale.default_locale?
-          default_locale_translation = lookup(Locale.default_locale, key, count)
-          translation = @locale.create_translation(key, key, count) if default_locale_translation
+        # if no entry exists for the current locale and the current locale is not the default locale then lookup translations for the default locale for this key
+        unless entry || @locale.default_locale?
+          entry = use_and_copy_default_locale_translations_if_they_exist(@locale, key)
         end
 
-        # if we have no translation and some defaults ... start looking them up
-        unless key.is_a?(String) || translation || options[:default].blank?
+        # if we have no entry and some defaults ... start looking them up
+        unless key.is_a?(String) || entry || options[:default].blank?
           default = options[:default].is_a?(Array) ? options[:default].shift : options.delete(:default)
           return translate(@locale.code, default, options.dup)
         end
 
         # we check the database before creating a translation as we can have translations with nil values
         # if we still have no blasted translation just go and create one for the current locale!
-        unless translation 
-          translation =  @locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count) ||
-                         @locale.create_translation(key, key, count)
+        unless entry 
+          pluralization_index = (options[:count].nil? || options[:count] == 1) ? 1 : 0
+          translation =  @locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), pluralization_index) ||
+                         @locale.create_translation(key, key, pluralization_index)
+          entry = translation.value_or_default                
         end
 
-        value = translation.value_or_default(key)
-        @cache_store.write(Translation.ck(@locale, key, count), value)
-        interpolate(@locale.code, value, values)
+        @cache_store.write(Translation.ck(@locale, key), entry)
+        entry = pluralize(@locale, entry, count)
+        entry = interpolate(@locale.code, entry, values)
+        entry.is_a?(Array) ? entry.dup : entry # array's can get frozen with cache writes
       end
 
       # Acts the same as +strftime+, but returns a localized version of the 
@@ -79,11 +81,12 @@ module I18n
         type = object.respond_to?(:sec) ? 'time' : 'date'
         format = translate(locale, "#{type}.formats.#{format.to_s}") unless format.to_s.index('%') # lookup keyed formats unless a custom format is passed
 
-        format.gsub!(/%a/, translate(locale, "date.abbr_day_names.#{object.wday}")) 
-        format.gsub!(/%A/, translate(locale, "date.day_names.#{object.wday}"))
-        format.gsub!(/%b/, translate(locale, "date.abbr_month_names.#{object.mon}"))
-        format.gsub!(/%B/, translate(locale, "date.month_names.#{object.mon}"))
-        format.gsub!(/%p/, translate(locale, "time.#{object.hour < 12 ? :am : :pm}")) if object.respond_to? :hour
+        format.gsub!(/%a/, translate(locale, :"date.abbr_day_names")[object.wday]) 
+        format.gsub!(/%A/, translate(locale, :"date.day_names")[object.wday])
+        format.gsub!(/%b/, translate(locale, :"date.abbr_month_names")[object.mon])
+        format.gsub!(/%B/, translate(locale, :"date.month_names")[object.mon])
+        format.gsub!(/%p/, translate(locale, :"time.#{object.hour < 12 ? :am : :pm}")) if object.respond_to? :hour
+        
         object.strftime(format)
       end
 
@@ -120,15 +123,49 @@ module I18n
         end
 
         # lookup key in cache and db, if the db is hit the value is cached
-        def lookup(locale, key, count)
-          cache_key = Translation.ck(locale, key, count)
+        def lookup(locale, key)
+          cache_key = Translation.ck(locale, key)
           if @cache_store.exist?(cache_key) && value = @cache_store.read(cache_key)
-            translation = Translation.new(:value => value)
+            return value
           else
-            translation = locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), count)
-            @cache_store.write(cache_key, (translation.nil? ? nil : translation.value))
+            translations = locale.translations.find_all_by_key(Translation.hk(key))
+            case translations.size
+            when 0
+              value = nil
+            when 1
+              value = translations.first.value_or_default
+            else
+              value = translations.inject([]) do |values, t| 
+                values[t.pluralization_index] = t.value_or_default
+                values
+              end
+            end
+
+            @cache_store.write(cache_key, (value.nil? ? nil : value))
+            return value
           end
-          return translation
+        end
+
+        # looks up translations for the default locale, and if they exist untranslated records are created for the locale and the default locale values are returned 
+        def use_and_copy_default_locale_translations_if_they_exist(locale, key)
+          default_locale_entry = lookup(Locale.default_locale, key)
+          return unless default_locale_entry
+
+          if default_locale_entry.is_a?(Array)
+            default_locale_entry.each_with_index do |entry, index|
+              locale.create_translation(key, nil, index) if entry
+            end
+          else
+            locale.create_translation(key, nil) 
+          end
+
+          return default_locale_entry
+        end
+
+        def pluralize(locale, entry, count)
+          return entry unless entry.is_a?(Array) and count
+          count = count == 1 ? 1 : 0
+          entry.compact[count]
         end
 
         # Interpolates values into a given string.

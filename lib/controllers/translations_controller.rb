@@ -6,7 +6,7 @@ class TranslationsController < ActionController::Base
   # GET /translations
   # GET /translations.xml
   def index
-    @translations = @locale.translations.find(:all)
+    @translations = @locale.translations.find(:all, :order => "raw_key, pluralization_index")
 
     respond_to do |format|
       format.html # index.html.erb

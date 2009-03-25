@@ -28,6 +28,15 @@ describe I18n::Backend::Database do
         @english_locale.translations.first.value.should == "String"
       end
 
+      it "should create a record with the key as the value when the key is a string and cache that record" do
+        @backend.translate("en", "status").should == "status"
+        @english_locale.should have(1).translation
+
+        # once cached
+        @backend.translate("en", "status").should == "status"
+        @english_locale.should have(1).translation
+      end
+
       it "should find a record with the key as the value when the key is a string" do
         @english_locale.translations.create!(:key => 'String', :value => 'Value')
         @backend.translate("en", "String").should == "Value"
@@ -52,22 +61,31 @@ describe I18n::Backend::Database do
         @english_locale.reload.should have(1).translation
       end
 
+      it "should support storing values as YAML symbols" do
+        @english_locale.translations.create!(:key => 'date.order', :value => "--- :year\n",  :pluralization_index => 0)
+        @english_locale.translations.create!(:key => 'date.order', :value => "--- :month\n", :pluralization_index => 1)
+        @english_locale.translations.create!(:key => 'date.order', :value => "--- :day\n",   :pluralization_index => 2)
+
+        @backend.translate("en", :'date.order').should == [:year, :month, :day]
+        @english_locale.should have(3).translations
+      end
+
       it "should find a cached record from a cache key if it exists in the cache" do
         hash_key = Translation.hk("blah")
-        @backend.cache_store.write("en:#{hash_key}:1", 'woot')
+        @backend.cache_store.write("en:#{hash_key}", 'woot')
         @backend.translate("en", "blah").should == "woot"
       end
 
       it "should find a cached record with a nil value from a cache key if it exists in the cache" do
         hash_key = Translation.hk(".date.order")
-        @backend.cache_store.write("en:#{hash_key}:1", nil)
+        @backend.cache_store.write("en:#{hash_key}", nil)
         @backend.translate("en", :'date.order').should be_nil
       end
 
       it "should write a cache record to the cache for a newly created translation record" do
         hash_key = Translation.hk("blah")
         @backend.translate("en", "blah")
-        @backend.cache_store.read("en:#{hash_key}:1").should == "blah"
+        @backend.cache_store.read("en:#{hash_key}").should == "blah"
       end
 
       it "should write a cache record to the cache for translation record with nil value" do
@@ -75,7 +93,7 @@ describe I18n::Backend::Database do
         @backend.translate("en", :'date.order').should be_nil
 
         hash_key = Translation.hk(".date.order")
-        @backend.cache_store.read("en:#{hash_key}:1").should be_nil
+        @backend.cache_store.read("en:#{hash_key}").should be_nil
       end
 
       it "should handle active record helper defaults, where default is the object name" do
@@ -192,6 +210,41 @@ describe I18n::Backend::Database do
         @backend.translate("en", :"models.translation.attributes.locale.blank", options).should == "is blank moron!"
       end
 
+      it "should return an array" do
+        @english_locale.translations.create!(:key => 'date.month_names', :value => 'January',  :pluralization_index => 1)
+        @english_locale.translations.create!(:key => 'date.month_names', :value => 'February', :pluralization_index => 2)
+        @english_locale.translations.create!(:key => 'date.month_names', :value => 'March',    :pluralization_index => 3)
+        @backend.translate("en", :"date.month_names").should == [nil, 'January', 'February', 'March']
+
+        # once cached
+        @backend.translate("en", :"date.month_names").should == [nil, 'January', 'February', 'March']
+        @english_locale.reload.should have(3).translation
+      end
+
+      it "should return an unfrozen array" do
+        @english_locale.translations.create!(:key => 'date.month_names', :value => 'January',  :pluralization_index => 1)
+        @english_locale.translations.create!(:key => 'date.month_names', :value => 'February', :pluralization_index => 2)
+        @english_locale.translations.create!(:key => 'date.month_names', :value => 'March',    :pluralization_index => 3)
+        @backend.translate("en", :"date.month_names").should_not be_frozen
+
+        # once cached
+        @backend.translate("en", :"date.month_names").should_not be_frozen
+      end
+
+      it "should return an array of days" do
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Sunday',    :pluralization_index => 0)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Monday',    :pluralization_index => 1)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Tuesday',   :pluralization_index => 2)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Wednesday', :pluralization_index => 3)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Thursday',  :pluralization_index => 4)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Friday',    :pluralization_index => 5)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Saturday',  :pluralization_index => 6)
+
+        # once cached
+        @backend.translate("en", :"date.day_names").should == ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        @english_locale.reload.should have(7).translation
+      end
+
     end
 
     describe "and locale es" do
@@ -201,10 +254,31 @@ describe I18n::Backend::Database do
       end
 
       it "should create a record with a nil value when the key is a string" do
-        @backend.translate("es", "String")
+        @backend.translate("es", "String").should == "String"
         @spanish_locale.should have(1).translation
         @spanish_locale.translations.first.key.should == Translation.hk("String")
         @spanish_locale.translations.first.value.should be_nil
+      end
+
+      it "should handle basic workflow" do
+        @english_locale.translations.create!(:key => 'Message Center', :value => 'Message Center')
+        @spanish_locale.translations.create!(:key => 'Message Center', :value => nil)
+
+        @backend.translate("en", "Message Center").should == "Message Center"
+
+        @english_locale.should have(1).translation
+        @english_locale.translations.first.key.should == Translation.hk("Message Center")
+        @english_locale.translations.first.raw_key.should == "Message Center"
+        @english_locale.translations.first.value.should == "Message Center"
+
+        @backend.translate("es", "Message Center").should == "Message Center"
+
+        @spanish_locale.should have(1).translation
+        @spanish_locale.translations.first.key.should == Translation.hk("Message Center")
+        @spanish_locale.translations.first.value.should be_nil
+        
+        @backend.translate("es", "Message Center").should == "Message Center"
+        @spanish_locale.should have(1).translation
       end
 
       it "should return default locale (en) value and create the spanish record" do
@@ -245,7 +319,7 @@ describe I18n::Backend::Database do
         @english_locale.translations.create!(:key => 'activerecord.errors.template.header', :value => '{{count}} errors prohibited this {{model}} from being saved', :pluralization_index => 0)
         options = {:count=>1, :model=>"translation", :scope=>[:activerecord, :errors, :template]}
         @backend.translate("es", :"header", options).should == "1 error prohibited this translation from being saved"
-        @spanish_locale.should have(1).translations
+        @spanish_locale.should have(2).translations
 
         options = {:count=>2, :model=>"translation", :scope=>[:activerecord, :errors, :template]}
         @backend.translate("es", :"header", options).should == "2 errors prohibited this translation from being saved"
@@ -276,7 +350,7 @@ describe I18n::Backend::Database do
         @spanish_locale.should have(1).translation
         @spanish_locale.translations.first.key.should == Translation.hk("activerecord.errors.models.translation.blank")
         @spanish_locale.translations.first.value.should be_nil
-        @backend.cache_store.read("es:activerecord.errors.models.translation.blank:1", "translation blank")
+        @backend.cache_store.read("es:activerecord.errors.models.translation.blank", "translation blank")
       end
 
       it "should find highest level translation" do
@@ -305,6 +379,84 @@ describe I18n::Backend::Database do
         @spanish_locale.translations.first.key.should == Translation.hk("This is a custom message!")
         @spanish_locale.translations.first.value.should be_nil
       end
+
+      it "should return an array from spanish locale" do
+        @english_locale.translations.create!(:key => 'date.month_names', :value => 'January',  :pluralization_index => 1)
+        @english_locale.translations.create!(:key => 'date.month_names', :value => 'February', :pluralization_index => 2)
+        @english_locale.translations.create!(:key => 'date.month_names', :value => 'March',    :pluralization_index => 3)
+        @spanish_locale.translations.create!(:key => 'date.month_names', :value => 'Enero',    :pluralization_index => 1)
+        @spanish_locale.translations.create!(:key => 'date.month_names', :value => 'Febrero',  :pluralization_index => 2)
+        @spanish_locale.translations.create!(:key => 'date.month_names', :value => 'Marzo',    :pluralization_index => 3)
+
+        @backend.translate("es", :"date.month_names").should == [nil, 'Enero', 'Febrero', 'Marzo']
+
+        # once cached
+        @backend.translate("es", :"date.month_names").should == [nil, 'Enero', 'Febrero', 'Marzo']
+        @english_locale.reload.should have(3).translation
+        @spanish_locale.reload.should have(3).translation
+      end
+
+      it "should return an array from default locale" do
+        @english_locale.translations.create!(:key => 'date.month_names', :value => 'January',  :pluralization_index => 1)
+        @english_locale.translations.create!(:key => 'date.month_names', :value => 'February', :pluralization_index => 2)
+        @english_locale.translations.create!(:key => 'date.month_names', :value => 'March',    :pluralization_index => 3)
+        @backend.translate("es", :"date.month_names").should == [nil, 'January', 'February', 'March']
+
+        # once cached
+        @backend.translate("es", :"date.month_names").should == [nil, 'January', 'February', 'March']
+        @english_locale.reload.should have(3).translation
+        @spanish_locale.reload.should have(3).translation
+      end
+
+      it "should return an array of days" do
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Sunday',    :pluralization_index => 0)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Monday',    :pluralization_index => 1)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Tuesday',   :pluralization_index => 2)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Wednesday', :pluralization_index => 3)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Thursday',  :pluralization_index => 4)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Friday',    :pluralization_index => 5)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Saturday',  :pluralization_index => 6)
+        @backend.translate("es", :"date.day_names").should == ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+        # once cached
+        @backend.translate("es", :"date.day_names").should == ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        @english_locale.reload.should have(7).translation
+        @spanish_locale.reload.should have(7).translation
+      end
+
+      it "should return an array of days" do
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Sunday',    :pluralization_index => 0)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Monday',    :pluralization_index => 1)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Tuesday',   :pluralization_index => 2)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Wednesday', :pluralization_index => 3)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Thursday',  :pluralization_index => 4)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Friday',    :pluralization_index => 5)
+        @english_locale.translations.create!(:key => 'date.day_names', :value => 'Saturday',  :pluralization_index => 6)
+        @spanish_locale.translations.create!(:key => 'date.day_names', :value => nil,         :pluralization_index => 0)
+        @spanish_locale.translations.create!(:key => 'date.day_names', :value => nil,         :pluralization_index => 1)
+        @spanish_locale.translations.create!(:key => 'date.day_names', :value => nil,         :pluralization_index => 2)
+        @spanish_locale.translations.create!(:key => 'date.day_names', :value => nil,         :pluralization_index => 3)
+        @spanish_locale.translations.create!(:key => 'date.day_names', :value => nil,         :pluralization_index => 4)
+        @spanish_locale.translations.create!(:key => 'date.day_names', :value => nil,         :pluralization_index => 5)
+        @spanish_locale.translations.create!(:key => 'date.day_names', :value => nil,         :pluralization_index => 6)
+        @backend.translate("es", :"date.day_names").should == ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+        # once cached
+        @backend.translate("es", :"date.day_names").should == ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        @english_locale.reload.should have(7).translation
+        @spanish_locale.reload.should have(7).translation
+      end
+
+      it "should support storing values as YAML symbols" do
+        @english_locale.translations.create!(:key => 'date.order', :value => "--- :year\n",  :pluralization_index => 0)
+        @english_locale.translations.create!(:key => 'date.order', :value => "--- :month\n", :pluralization_index => 1)
+        @english_locale.translations.create!(:key => 'date.order', :value => "--- :day\n",   :pluralization_index => 2)
+
+        @backend.translate("es", :'date.order').should == [:year, :month, :day]
+        @english_locale.should have(3).translations
+        @spanish_locale.should have(3).translations
+      end
+
     end
   end
 end

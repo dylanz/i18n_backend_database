@@ -40,7 +40,7 @@ describe I18n::Backend::Database do
 
     it "should return a cache key of locale:key on call to build_cache_key" do
       hash_key = Translation.hk("hola me amigo!")
-      Translation.ck(@locale, "hola me amigo!", 1).should == "es:#{hash_key}:1"
+      Translation.ck(@locale, "hola me amigo!", 1).should == "es:#{hash_key}"
     end
 
     it "should generate a Base64 encoded, MD5 encrypted hash, based on the key" do

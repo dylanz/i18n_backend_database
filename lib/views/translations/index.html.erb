@@ -3,6 +3,7 @@
 <table>
   <tr>
     <th>Key</th>
+    <th>Raw Key</th>
     <th>Value</th>
     <th>Default Locale Value</th>
   </tr>
@@ -10,6 +11,7 @@
 <% for translation in @translations %>
   <tr>
     <td><%=h translation.key %></td>
+    <td><%=h translation.raw_key %></td>
     <td><%=h translation.value %></td>
     <td><%=h translation.default_locale_value %></td>
     <td><%= link_to 'Show', locale_translation_path(@locale, translation) %></td>
