@@ -112,15 +112,36 @@ class I18nUtil
       locale.translations.untranslated.each do |translation|
         default_locale_value = translation.default_locale_value
         unless needs_human_eyes?(default_locale_value)
-          translation.value = GoogleLanguage.translate(default_locale_value, locale.code, Locale.default_locale.code)
-          translation.save!
+          interpolation_arguments= default_locale_value.scan(/\{\{(.*?)\}\}/).flatten
+
+          if interpolation_arguments.empty?
+            translation.value = GoogleLanguage.translate(default_locale_value, locale.code, Locale.default_locale.code)
+            translation.save!
+          else
+            placeholder_value = 990 # at least in :es it seems to leave a 3 digit number in the postion on the string
+            placeholders = {}
+
+            # replace {{interpolation_arguments}} with a numeric place holder
+            interpolation_arguments.each do |interpolation_argument|
+              default_locale_value.gsub!("{{#{interpolation_argument}}}", "#{placeholder_value}")
+              placeholders[placeholder_value] = interpolation_argument
+              placeholder_value += 1
+            end
+
+            # translate string
+            translated_value = GoogleLanguage.translate(default_locale_value, locale.code, Locale.default_locale.code)
+
+            # replace numeric place holders with {{interpolation_arguments}} 
+            placeholders.each {|placeholder_value,interpolation_argument| translated_value.gsub!("#{placeholder_value}", "{{#{interpolation_argument}}}") }
+            translation.value = translated_value
+            translation.save!
+          end
         end
       end
     end
   end
-  
+
   def self.needs_human_eyes?(value)
-    return true if value =~ /\{\{(.*?)\}\}/ # interpolated translations
     return true if value.index('%')         # date formats
     return true if value =~ /^---(.*)\n/    # YAML
   end
