@@ -49,4 +49,11 @@ namespace :i18n do
     desc 'Runs all populate methods in this order: load_default_locales, from_rails, from_application, synchronize_translations'
     task :all => ["load_default_locales", "from_rails", "from_application", "synchronize_translations"]
   end
+
+  namespace :translate do
+    desc 'Translate all untranslated values using Google Language Translation API.  Does not translate interpolated strings, date formats, or YAML'
+    task :google => :environment do
+      I18nUtil.google_translate
+    end
+  end
 end

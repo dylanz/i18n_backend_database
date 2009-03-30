@@ -15,6 +15,7 @@ h2. Installation
     rake i18n:populate:from_application         # populate the translation tables from translation calls within the application.
     rake i18n:populate:synchronize_translations # create non-default locale translation records from default locale translations.
     rake i18n:populate:all                      # run all populate tasks.
+    rake i18n:translate:google                  # translate all untranslated string values using Google Language Translation API.
   </code>
 </pre>
 

@@ -106,4 +106,22 @@ class I18nUtil
       end
     end
   end
+
+  def self.google_translate
+    Locale.non_defaults.each do |locale|
+      locale.translations.untranslated.each do |translation|
+        default_locale_value = translation.default_locale_value
+        unless needs_human_eyes?(default_locale_value)
+          translation.value = GoogleLanguage.translate(default_locale_value, locale.code, Locale.default_locale.code)
+          translation.save!
+        end
+      end
+    end
+  end
+  
+  def self.needs_human_eyes?(value)
+    return true if value =~ /\{\{(.*?)\}\}/ # interpolated translations
+    return true if value.index('%')         # date formats
+    return true if value =~ /^---(.*)\n/    # YAML
+  end
 end
