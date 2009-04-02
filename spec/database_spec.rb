@@ -43,10 +43,10 @@ describe I18n::Backend::Database do
       Translation.ck(@locale, "hola me amigo!", 1).should == "es:#{hash_key}"
     end
 
-    it "should generate a Base64 encoded, MD5 encrypted hash, based on the key" do
+    it "should generate a Base64 encoded (minus newline), MD5 encrypted hash, based on the key" do
       encrypted_key = Digest::MD5.hexdigest("aoeuaoeu")
       completed_key = Translation.hk("aoeuaoeu")
-      encrypted_key.should == Base64.decode64(completed_key)
+      encrypted_key.should == Base64.decode64(completed_key).gsub(/\n/, '')
     end
 
     it "should have a nil locale cache by default" do
