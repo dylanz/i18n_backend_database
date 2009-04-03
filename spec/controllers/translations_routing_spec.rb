@@ -11,19 +11,19 @@ describe TranslationsController do
     end
   
     it "should map #show" do
-      route_for(:controller => "translations", :action => "show", :id => 1, :locale_id => "en").should == "/locales/en/translations/1"
+      route_for(:controller => "translations", :action => "show", :id => "1", :locale_id => "en").should == "/locales/en/translations/1"
     end
   
     it "should map #edit" do
-      route_for(:controller => "translations", :action => "edit", :id => 1, :locale_id => "en").should == "/locales/en/translations/1/edit"
+      route_for(:controller => "translations", :action => "edit", :id => "1", :locale_id => "en").should == "/locales/en/translations/1/edit"
     end
   
     it "should map #update" do
-      route_for(:controller => "translations", :action => "update", :id => 1, :locale_id => "en").should == "/locales/en/translations/1"
+      route_for(:controller => "translations", :action => "update", :id => "1", :locale_id => "en").should == {:path => "/locales/en/translations/1", :method => :put}
     end
   
     it "should map #destroy" do
-      route_for(:controller => "translations", :action => "destroy", :id => 1, :locale_id => "en").should == "/locales/en/translations/1"
+      route_for(:controller => "translations", :action => "destroy", :id => "1", :locale_id => "en").should == {:path => "/locales/en/translations/1", :method => :delete}
     end
   end
 
