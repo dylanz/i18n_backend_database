@@ -4,12 +4,6 @@
 <%= submit_tag 'Go' %>
 <% end -%>
 
-<script type="text/javascript">
-   Event.observe(window, 'load', function() {
-       myJsProgressBarHandler = new JS_BRAMUS.jsProgressBar($('translate_progress'), 0);
-   }, false);
-</script>
-
 <p>
   Textual Translation progress: <span class="progressBar" id="translate_progress"><%= @locale.percentage_translated %></span>
 </p>
