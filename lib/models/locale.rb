@@ -50,7 +50,7 @@ class Locale < ActiveRecord::Base
   end
 
   def self.available_locales
-    all.map(&:code).map(&:to_sym)
+    all.map(&:code).map(&:to_sym) rescue []
   end
 
   def default_locale?
