@@ -45,6 +45,7 @@ module I18n
         values = options.reject { |name, value| [:scope, :default].include?(name) }
 
         entry = lookup(@locale, key)
+        cache_lookup = true unless entry.nil?
 
         # if no entry exists for the current locale and the current locale is not the default locale then lookup translations for the default locale for this key
         unless entry || @locale.default_locale?
@@ -63,10 +64,12 @@ module I18n
           pluralization_index = (options[:count].nil? || options[:count] == 1) ? 1 : 0
           translation =  @locale.translations.find_by_key_and_pluralization_index(Translation.hk(key), pluralization_index) ||
                          @locale.create_translation(key, key, pluralization_index)
-          entry = translation.value_or_default                
+          entry = translation.value_or_default
         end
 
-        @cache_store.write(Translation.ck(@locale, key), entry)
+        # write to cache unless we've already had a successful cache hit
+        @cache_store.write(Translation.ck(@locale, key), entry) unless cache_lookup == true
+
         entry = pluralize(@locale, entry, count)
         entry = interpolate(@locale.code, entry, values)
         entry.is_a?(Array) ? entry.dup : entry # array's can get frozen with cache writes

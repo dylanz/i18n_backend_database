@@ -1,5 +1,19 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
+class MemoryStoreProxy < ActiveSupport::Cache::MemoryStore
+  attr_accessor :write_count
+
+  def initialize
+    @write_count = 0
+    super
+  end
+
+  def write(key, value, options = nil)
+    super(key, value, options)
+    @write_count += 1
+  end
+end
+
 describe I18n::Backend::Database do
   before(:each) do
     @backend = I18n::Backend::Database.new
@@ -26,6 +40,17 @@ describe I18n::Backend::Database do
         @english_locale.translations.first.key.should == Translation.hk("String")
         @english_locale.translations.first.raw_key.should == "String"
         @english_locale.translations.first.value.should == "String"
+      end
+
+      it "should not write to the cache if the key already exists in the cache" do
+        @backend.cache_store = MemoryStoreProxy.new
+        @english_locale.translations.create!(:key => 'String', :value => 'Value')
+
+        @backend.translate("en", "String").should == "Value"
+        @backend.cache_store.write_count.should == 1
+
+        @backend.translate("en", "String").should == "Value"
+        @backend.cache_store.write_count.should == 1
       end
 
       it "should create a record with the key as the value when the key is a string and cache that record" do
@@ -258,6 +283,18 @@ describe I18n::Backend::Database do
         @spanish_locale.should have(1).translation
         @spanish_locale.translations.first.key.should == Translation.hk("String")
         @spanish_locale.translations.first.value.should be_nil
+      end
+
+      it "should not write to the cache if the key already exists in the cache" do
+        @backend.cache_store = MemoryStoreProxy.new
+        @english_locale.translations.create!(:key => 'Message Center', :value => 'Message Center')
+        @spanish_locale.translations.create!(:key => 'Message Center', :value => nil)
+
+        @backend.translate("es", "Message Center").should == "Message Center"
+        @backend.cache_store.write_count.should == 1
+
+        @backend.translate("es", "Message Center").should == "Message Center"
+        @backend.cache_store.write_count.should == 1
       end
 
       it "should handle basic workflow" do
