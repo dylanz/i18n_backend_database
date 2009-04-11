@@ -1,5 +1,3 @@
-require 'digest/md5'
-require 'base64'
 
 module I18n
   module Backend
@@ -53,7 +51,14 @@ module I18n
         end
 
         # if we have no entry and some defaults ... start looking them up
-        unless key.is_a?(String) || entry || options[:default].blank?
+        unless entry || key.is_a?(String) || options[:default].blank?
+          default = options[:default].is_a?(Array) ? options[:default].shift : options.delete(:default)
+          return translate(@locale.code, default, options.dup)
+        end
+
+        # this needs to be folded into the above at some point.
+        # this handles the case where the default of the string key is a space
+        if !entry && key.is_a?(String) && options[:default] == " "
           default = options[:default].is_a?(Array) ? options[:default].shift : options.delete(:default)
           return translate(@locale.code, default, options.dup)
         end

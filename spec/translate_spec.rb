@@ -137,6 +137,16 @@ describe I18n::Backend::Database do
         @english_locale.should have(1).translation
       end
 
+      it "should handle translating defaults used by active record attributes when the default is blank" do
+        options = { :count=>1, :default=> " "}
+        @backend.translate("en", "key", options).should == " "
+
+        # and when cached
+        options = { :count=>1, :default=> " "}
+        @backend.translate("en", "key", options).should ==  " "
+        @english_locale.should have(1).translation
+      end
+
       it "should be able to handle interpolated values" do
         options = {:some_value => 'INTERPOLATED'}
         @english_locale.translations.create!(:key => 'Fred', :value => 'Fred has been {{some_value}}!!')
