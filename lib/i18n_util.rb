@@ -59,8 +59,8 @@ class I18nUtil
   end
 
   # Create translation records for all existing locales from translation calls with the application.  Ignores errors from tranlations that require objects.
-  def self.seed_application_translations
-    translated_objects.each do |object|
+  def self.seed_application_translations(dir='app')
+    translated_objects(dir).each do |object|
       interpolation_arguments= object.scan(/\{\{(.*?)\}\}/).flatten
       object = object[/'(.*?)'/, 1] || object[/"(.*?)"/, 1]
       options = {}
@@ -83,7 +83,7 @@ class I18nUtil
     assets = []
     Dir.glob("#{dir}/*").each do |item|
       if File.directory?(item)
-        assets += translated_objects(item)
+        assets += translated_objects(item) unless item.ends_with?('i18n_backend_database') # ignore self
       else
         File.readlines(item).each do |l|
           assets += l.scan(/I18n.t\((.*?)\)/).flatten
