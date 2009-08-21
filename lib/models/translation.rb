@@ -1,3 +1,5 @@
+require 'digest/md5'
+
 class Translation < ActiveRecord::Base
   belongs_to :locale
   validates_presence_of :key
