@@ -2,6 +2,9 @@ h1. A Database Backend For Rails I18N
 
 Stores your translations in the database, rather than yaml files.  As you tag items with i18n.t() throughout your code base, all untranslated items are marked and added to the database.  An admin panel is provided so translators can quickly translate untranslated text.  All lookups occur in a cache store of your choice prior to hitting the database.
 
+h2. DISCLAIMER!
+
+In implementing this into another project, I realized that the currency support is currently broken.  It basically boils down to the i18n gem accessing some of the Rails i18n yaml's in a different way than others.  In this case, it's requesting a parent key, and expects a hash to be returned containing the children.  This is not baked in the plugin at the moment, and any contributions toward this would be well received.
 
 h2. Installation
 
