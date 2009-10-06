@@ -40,7 +40,7 @@ class TranslationsController < ActionController::Base
 
     @asset_translations  = I18n.asset_translations
     @untranslated_assets = I18n.untranslated_assets(@locale.code)
-    @percentage_translated =   ( (@asset_translations.size - @untranslated_assets.size).to_f / @asset_translations.size.to_f * 100).round
+    @percentage_translated =   (((@asset_translations.size - @untranslated_assets.size).to_f / @asset_translations.size.to_f * 100).round) rescue 0
 
     if @translation_option == TranslationOption.translated
       @asset_translations = @asset_translations.reject{|e| @untranslated_assets.include?(e)}
