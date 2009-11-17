@@ -8,8 +8,8 @@ class CreateI18nTables < ActiveRecord::Migration
 
     create_table :translations do |t|
       t.string   :key
-      t.string   :raw_key
-      t.string   :value
+      t.text     :raw_key
+      t.text     :value
       t.integer  :pluralization_index, :default => 1
       t.integer  :locale_id
     end

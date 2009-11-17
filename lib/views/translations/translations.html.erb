@@ -19,7 +19,7 @@
   <% remote_form_for([@locale, translation]) do |f| %>
     <p><%=h translation.default_locale_value || translation.raw_key %></p>
     <p>
-      <%= f.text_field :value %>
+      <%= f.text_field :value, :size => 128 %>
       <%= f.submit "Update" %>
     </p>
   <% end %>
