@@ -4,7 +4,9 @@ Stores your translations in the database, rather than yaml files.  As you tag it
 
 h2. DISCLAIMER!
 
-In implementing this into another project, I realized that the currency support is currently broken.  It basically boils down to the i18n gem accessing some of the Rails i18n yaml's in a different way than others.  In this case, it's requesting a parent key, and expects a hash to be returned containing the children.  This is not baked in the plugin at the moment, and any contributions toward this would be well received.
+* In implementing this into another project, I realized that the currency support is currently broken.  It basically boils down to the i18n gem accessing some of the Rails i18n yaml's in a different way than others.  In this case, it's requesting a parent key, and expects a hash to be returned containing the children.  This is not baked in the plugin at the moment, and any contributions toward this would be well received.
+
+* The translations_controller is unprotected, and you'll probably want to add some kind of authorization filter to it to make sure the outside world can't access it.
 
 h2. Installation
 

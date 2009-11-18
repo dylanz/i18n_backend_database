@@ -2,7 +2,9 @@ class TranslationsController < ActionController::Base
   prepend_view_path(File.join(File.dirname(__FILE__), "..", "views"))
   layout 'translations'
   before_filter :find_locale
-  
+
+  ## FIXME:  you'll probably want add authorization to this controller!
+
   # GET /translations
   # GET /translations.xml
   def index
@@ -19,7 +21,7 @@ class TranslationsController < ActionController::Base
   def translations
     @locale ||= Locale.default_locale
     @translation_option = TranslationOption.find(params[:translation_option])
-    
+
     if @translation_option == TranslationOption.translated
       @translations = @locale.translations.translated
     else
@@ -106,9 +108,9 @@ class TranslationsController < ActionController::Base
 
     respond_to do |format|
       if @translation.update_attributes(params[:translation])
-        format.html do 
+        format.html do
           flash[:notice] = 'Translation was successfully updated.'
-          redirect_to locale_translation_path(@locale, @translation) 
+          redirect_to locale_translation_path(@locale, @translation)
         end
         format.xml  { head :ok }
         format.js   {}
@@ -130,9 +132,9 @@ class TranslationsController < ActionController::Base
       format.xml  { head :ok }
     end
   end
-  
+
   private
-  
+
     def find_locale
       @locale = Locale.find_by_code(params[:locale_id])
     end
