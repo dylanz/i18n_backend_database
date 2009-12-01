@@ -71,7 +71,11 @@ module I18n
           #We need to escape % and \.  Rails will handle the rest.
           escaped_key = key.to_s.gsub('\\', '\\\\\\\\').gsub(/%/, '\%')
           children = @locale.translations.find :all, :conditions => ["raw_key like ?", "#{escaped_key}.%"]
-          return hashify_record_array(key.to_s, children) if children.size > 0
+          if children.size > 0
+            entry = hashify_record_array(key.to_s, children)
+            @cache_store.write(Translation.ck(@locale, key), entry) unless cache_lookup == true
+            return entry
+          end
         end
 
         # we check the database before creating a translation as we can have translations with nil values
