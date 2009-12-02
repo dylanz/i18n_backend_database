@@ -50,7 +50,7 @@ class I18nUtil
       if value.is_a?(Hash)
         # Nested hash
         keys += extract_i18n_keys(value, full_key)
-      elsif value.present?
+      elsif !value.nil?
         # String leaf node
         keys << full_key.join(".")
       end

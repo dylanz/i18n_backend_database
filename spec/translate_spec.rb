@@ -23,6 +23,43 @@ describe I18n::Backend::Database do
     @backend.cache_store.clear
   end
 
+  describe "returning hashes for non-leaves" do
+    before do
+      #Set up a translation hierarchy
+      @locale = Locale.create!(:code => "en")
+      I18n.default_locale = "en"
+    end
+
+    it "should return a hash when asked for a non-leaf node" do
+      format_hash = {:separator => ".", :precision => 3, :delimiter => ","}
+      @locale.translations.create!(:key => "number.format.separator", :value => format_hash[:separator])
+      @locale.translations.create!(:key => "number.format.precision", :value => format_hash[:precision])
+      @locale.translations.create!(:key => "number.format.delimiter", :value => format_hash[:delimiter])
+      @backend.translate("en", "number.format").should == format_hash
+    end
+
+    it "should return a nested hash" do
+      nested_hash = {:a => "b", :c => {:d => "e", :f => "g"}}
+      @locale.translations.create!(:key => "nested.a", :value => "b")
+      @locale.translations.create!(:key => "nested.c.d", :value => "e")
+      @locale.translations.create!(:key => "nested.c.f", :value => "g")
+      @backend.translate("en", "nested").should == nested_hash
+    end
+
+    it "should not be fooled by SQL injection" do
+      #for bad_string in ["number.format%", "number.format\%", "number.format\\"] do
+      for bad_string in ["number.format\\"] do
+        @backend.translate("en", bad_string).should == bad_string
+      end
+    end
+
+    it "should not be fooled by keys ending in a delimiter" do
+      @locale.translations.create!(:key => "number.format.", :value => 'this should be a normal leaf')
+      @backend.translate('en', 'number.format.').should == 'this should be a normal leaf'
+    end
+
+  end
+
   describe "with default locale en" do
     before(:each) do
       I18n.default_locale = "en"
