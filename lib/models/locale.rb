@@ -5,6 +5,10 @@ class Locale < ActiveRecord::Base
   has_many :translations, :dependent => :destroy
   named_scope :non_defaults, :conditions => ["code != ?", I18n.default_locale.to_s]
 
+  #named_scope :english, lambda { |m| { return Hash.new if m.nil?; :conditions => "locales.locale = '#{m}'" } }
+# named_scope :in_city, lambda { |m| { return {} if m.nil?; :joins => [cities], :conditions => "cities.name = '#{m}' } }
+
+
   @@default_locale = nil
 
   def self.default_locale
